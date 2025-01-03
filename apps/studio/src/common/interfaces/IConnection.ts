@@ -1,10 +1,21 @@
-import { RedshiftOptions } from "../appdb/models/saved_connection"
-import { BigQueryOptions } from "../appdb/models/saved_connection"
+import { AzureAuthOptions, BigQueryOptions, CassandraOptions, LibSQLOptions, RedshiftOptions, ConnectionType } from "@/lib/db/types"
+import { Transport } from "../transport"
 
-export type ConnectionType = 'sqlite' | 'sqlserver' | 'redshift' | 'cockroachdb' | 'mysql' | 'postgresql' | 'mariadb' | 'cassandra' | 'bigquery'
 export type SshMode = null | 'agent' | 'userpass' | 'keyfile'
 
-export interface ISimpleConnection {
+export function isUltimateType(s: ConnectionType) {
+  const types: ConnectionType[] = [
+    'oracle',
+    'firebird',
+    'cassandra',
+    'libsql',
+    'clickhouse',
+  ]
+  return types.includes(s)
+}
+
+
+export interface ISimpleConnection extends Transport {
   id: number | null
   workspaceId: Nullable<number>
   connectionType: ConnectionType
@@ -28,11 +39,17 @@ export interface ISimpleConnection {
   sslCertFile: Nullable<string>
   sslKeyFile: Nullable<string>
   sslRejectUnauthorized: boolean
+  readOnlyMode: boolean
   labelColor?: Nullable<string>
   trustServerCertificate?: boolean
+  serviceName: Nullable<string>
   options?: any
   redshiftOptions?: RedshiftOptions
+  cassandraOptions?: CassandraOptions
   bigQueryOptions?: BigQueryOptions
+  azureAuthOptions?: AzureAuthOptions
+  authId?: number
+  libsqlOptions?: LibSQLOptions
 }
 
 export interface IConnection extends ISimpleConnection {

@@ -140,7 +140,7 @@ import { AppEvent } from '../../../../common/AppEvent'
 import { uuidv4 } from '../../../../lib/uuid'
 import TableIcon from '@/components/common/TableIcon.vue'
 export default {
-  props: ["connection", "table", "noSelect", "forceExpand", "forceCollapse", "container", "pinned", "draggable"],
+  props: ["table", "noSelect", "forceExpand", "forceCollapse", "container", "pinned", "draggable"],
   components: { TableIcon },
   mounted() {
     this.showColumns = !!this.table.showColumns
@@ -252,11 +252,10 @@ export default {
       this.$root.$emit(AppEvent.openTableProperties, { table: this.table })
     },
     pin() {
-      this.$store.dispatch('pins/add', this.table)
-      this.$store.dispatch('updateTableColumns', this.table)
+      this.trigger(AppEvent.togglePinTableList, this.table, true);
     },
     unpin() {
-      this.$store.dispatch('pins/remove', this.table)
+      this.trigger(AppEvent.togglePinTableList, this.table, false);
     }
   }
 }

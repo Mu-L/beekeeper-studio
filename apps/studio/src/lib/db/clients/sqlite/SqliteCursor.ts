@@ -1,25 +1,36 @@
 import { BeeCursor } from "../../models";
 import Sqlite, { Database, Statement } from 'better-sqlite3'
-interface Conn {
-  dbConfig: {
-    database: string
-  }
-}
-
 
 export class SqliteCursor extends BeeCursor {
 
-  private database: Database
-  private statement: Statement
-  private iterator?: IterableIterator<any>;
+  protected database: Database
+  protected statement: Statement
+  protected iterator?: IterableIterator<any>;
+  protected usingExternalConnection = false;
 
   constructor(
-    conn: Conn,
-    private query: string,
-    private params: string[], chunkSize: number) {
+    database: string | Database,
+    query: string,
+    private params: string[],
+    chunkSize: number,
+    protected options?: any
+  ) {
     super(chunkSize);
-    this.database = new Sqlite(conn.dbConfig.database)
-    this.statement = this.database.prepare(this.query)
+    if (typeof database === 'string') {
+      this._createConnection(database);
+    } else {
+      this.usingExternalConnection = true;
+      this.database = database;
+    }
+    this._prepareStatement(query);
+  }
+
+  protected _createConnection(path: string) {
+    this.database = new Sqlite(path)
+  }
+
+  protected _prepareStatement(query: string) {
+    this.statement = this.database.prepare(query)
     this.statement.raw(true);
   }
 
@@ -39,7 +50,10 @@ export class SqliteCursor extends BeeCursor {
     return results
   }
   async cancel(): Promise<void> {
-    this.database.close()
+    this.iterator?.return()
+    if(!this.usingExternalConnection) {
+      this.database.close()
+    }
   }
 
 }

@@ -1,60 +1,43 @@
 
-# Release 3.9 - Slow burn, but less slow now
+A new release of Beekeeper Studio is out, version 4.6. This release includes support for Azure SSO, LibSQL, and a bunch of bug fixes. It's getting hot here in Texas, so our releases will be getting hotter too 🔥🔥.
 
-My wife had heart surgery in Feb (she's doing great!) and I've been helping her recover, so it's been a while since the last Beekeeper Studio release (It's not a coincidence that I put out a super stable release at the end of Jan).
+## Headline Features
 
-If you are a customer of the commercial edition - 🙏 Thank you, your financial support makes all of this possible.
+### Azure SSO Support for SQL Server
 
-If you use the community edition, please consider upgrading to the [commercial edition](https://docs.beekeeperstudio.io/docs/upgrading-from-the-community-edition). Every purchase supports me, and the continued development of the community edition.
+We've added support for Azure SQL Single Sign On. You can now authenticate with Azure SQL using your Azure Active Directory credentials.
 
-I also have a few part time folks helping me keep Beekeeper Studio features rolling:
-- @wmontgomery
-- @not-night-but
-- @davidkaufman
+This makes it easier to connect to Azure SQL databases, and is a feature that many of our users have been asking for.
 
-Big thanks to them for their help.
+### LibSQL Support
 
-## Highlights ✨
+We've added support for [LibSQL](https://github.com/tursodatabase/libsql). LibSQL is a fork of SQLite which is designed to expand the scope and capabilities of SQLite to include remote hosted SQLite, and built-in automatic replication of local files. It's pretty cool (and MIT licensed).
 
-- [x] Added support for PostgreSQL partitions in the table structure view (@not-night-but)
-- [x] Added support for Query Magic enum substitution (@not-night-but)
-- [x] Added support for alphanumeric sorting of pinned tables (@tomaskudlicka)
-- [x] Added the ability to pin saved connections (just like pinned tables) (@not-night-but)
+libSQL is maintained by [Turso](https://turso.tech), which offers a managed version of libSQL and whose mission it is to build SQLite for production in modern distributed applications.
 
+## Other Changes
 
-## More awesome features 🍭 and 🐞 fixes
-
-- [x] Added support to copy table data modifications to SQL instead of applying them automatically
-- [x] Added the ability to select field names in the table structure view when they're not editable
-- [x] Huuuuuge upgrade from Electron 13 to Electron 22
-- [x] Colo(u)r sorting of connections fixed
-- [x] SSH2 library upgraded
-- [x] Fixing column names in the JSON download
-- [x] ...more stuff below, man this took a while to write
+- Fixed a bug that prevented some users from properly using Beekeeper for cassandra connections
+- Added filters to the connections and saved query sidebars
+- Fixed a bug that caused the query canceled icon to not show up
+- Fixed a bug that caused the launcher to not work on Ubuntu
+- Added a SQL import feature to import a bunch of .sql files into Beekeeper Studio
 
 
-## Merged PRs
+## PRs Merged
 
-
-85e68d52 Merge pull request #1558 from beekeeper-studio/partitions-fix-96
-a44371d2 Merge pull request #1548 from beekeeper-studio/partitions
-4719c4ce Merge pull request #1525 from MaximeRaynal/master
-7512516c Merge pull request #1551 from tomaskudlicka/feat/pin-tables-sorting
-d61910a7 Merge pull request #1541 from beekeeper-studio/copy-to-sql
-8a97f1db Merge pull request #1530 from beekeeper-studio/pinned-connections
-93694b93 Merge pull request #1512 from beekeeper-studio/1472-selectable-fields
-94f733fb Merge pull request #1502 from krystxf/fix/materialized_view
-8333115d Merge pull request #1537 from beekeeper-studio/interval-sorting
-3ab8ca5a Merge pull request #1511 from beekeeper-studio/electron-15
-50154381 Merge pull request #1492 from beekeeper-studio/dependabot/npm_and_yarn/http-cache-semantics-4.1.1
-470e1d2c Merge pull request #1509 from beekeeper-studio/editing-disabled
-13a4b9c0 Merge pull request #1513 from beekeeper-studio/colour-sorting
-7d931d6c Merge pull request #1516 from beekeeper-studio/mainline-ssh2
-68f09176 Merge pull request #1510 from beekeeper-studio/electron-remote-migration
-245f58d9 Merge pull request #1447 from beekeeper-studio/dependabot/npm_and_yarn/decode-uri-component-0.2.2
-e777f106 Merge pull request #1464 from beekeeper-studio/feature/747_find-replace-in-editor
-02409764 Merge pull request #1487 from leduard/master
-1cda1804 Merge pull request #1494 from davidkaufman/issue-1493-colnames-json-download
-0b475e0b Merge pull request #1473 from beekeeper-studio/dependabot/npm_and_yarn/knex-2.4.0
-76718b81 Merge pull request #1480 from henryliang2/master
-aefa5ff0 Merge pull request #1482 from beekeeper-studio/bugfix/empty-value-on-select
+ee3bdea6 Merge pull request #2216 from beekeeper-studio/fix/minimal-mode-auto-resize
+ab26569c Merge pull request #2214 from beekeeper-studio/fix/editor-modal-autofocus-autoresize
+e953a708 Merge pull request #2208 from beekeeper-studio/feat/minimal-mode
+3ce73df3 Merge pull request #2212 from therealrinku/fix/disabled-filter-state
+3f1c72ef Merge pull request #2210 from beekeeper-studio/e2e-tests
+51f076a3 Merge pull request #2162 from beekeeper-studio/chore/resolve-language
+7e695c46 Merge pull request #2185 from beekeeper-studio/fix/autoincrement-pk-table-builder
+932803e4 Merge pull request #2188 from beekeeper-studio/fix/nulls-not-distinct
+df818b26 Merge pull request #2203 from beekeeper-studio/fix/keyboard-issues
+02618dfc Merge pull request #2206 from beekeeper-studio/feat/minimal-mode
+0e02534b Merge pull request #2058 from beekeeper-studio/feat/import-sql-files
+52ab675e Merge pull request #2179 from beekeeper-studio/prefix-length-mysql
+90701222 Merge pull request #2172 from beekeeper-studio/fix/vim-yanking-again
+beeab2e1 Merge pull request #2186 from beekeeper-studio/style-upgrade-button
+5aead738 Merge pull request #2181 from beekeeper-studio/style-connection-upsell

@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'bk-icons';
   src:
-    url('~@/assets/fonts/beekeeper/bk-icons.ttf') format('truetype'),
-    url('~@/assets/fonts/beekeeper/bk-icons.woff') format('woff'),
-    url('~@/assets/fonts/beekeeper/bk-icons.svg') format('svg');
+    url('@/assets/fonts/beekeeper/bk-icons.ttf') format('truetype'),
+    url('@/assets/fonts/beekeeper/bk-icons.woff') format('woff'),
+    url('@/assets/fonts/beekeeper/bk-icons.svg') format('svg');
   font-weight: normal;
   font-style: normal;
   font-display: block;
@@ -35,4 +35,7 @@
 }
 .bk-github:before {
   content: "\eab0";
+}
+.bk-backup:before {
+  content: "\e902";
 }

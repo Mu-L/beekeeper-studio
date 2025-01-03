@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex-col expand"
+    class="flex-col expand table-list-component"
     ref="wrapper"
   >
     <!-- Filter -->
@@ -57,6 +57,11 @@
       </div>
     </div>
 
+    <x-progressbar
+      v-show="tablesLoading"
+      style="margin-top: -5px;"
+    />
+
     <!-- Pinned Tables -->
     <div
       class="table-list pinned flex-col"
@@ -66,173 +71,113 @@
       <pinned-table-list
         :all-expanded="allExpanded"
         :all-collapsed="allCollapsed"
-        :connection="connection"
-        @unselected="tableUnselected"
       />
     </div>
 
     <!-- Tables -->
     <hr v-show="pinnedEntities.length > 0"> <!-- Fake splitjs Gutter styling -->
-    <div
-      class="table-list flex-col"
+
+    <nav
+      class="list-group flex-col"
       ref="tables"
     >
-      <nav
-        class="list-group flex-col"
-        v-if="!tablesLoading"
-      >
-        <div class="list-heading row">
-          <div
-            class="sub row flex-middle"
-            style="padding-right: 0;"
+      <div class="list-heading">
+        <span class="sub">Entities</span>
+        <span
+          :title="`Total Entities`"
+          class="badge"
+          v-if="!filterQuery"
+        >{{ totalEntities }}</span>
+        <span
+          :title="`${totalFilteredEntities} hidden by filters`"
+          class="badge"
+          v-else
+          :class="{active: entitiesHidden}"
+        >{{ shownEntities }} / {{ totalEntities }}</span>
+        <span
+          v-show="totalHiddenEntities > 0 && !filterQuery"
+          class="hidden-indicator bks-tooltip-wrapper"
+        >
+          <span class="badge">
+            <i class="material-icons">visibility_off</i>
+            <span>{{ totalHiddenEntities > 99 ? '99+' : totalHiddenEntities }}</span>
+          </span>
+          <div class="hi-tooltip bks-tooltip bks-tooltip-bottom-center">
+            <span>Right click an entity to hide it. </span>
+            <a @click="$modal.show('hidden-entities')">View hidden</a><span>.</span>
+          </div>
+        </span>
+        <div class="actions">
+          <button
+            @click.prevent="toggleExpandCollapse"
+            :title="isExpanded ? 'Collapse All' : 'Expand All'"
+            :disabled="tablesLoading"
           >
-            <div>
-              Entities
-              <span
-                :title="`Total Entities`"
-                class="badge"
-                v-if="!filterQuery"
-              >{{ totalEntities }}</span>
-              <span
-                :title="`${totalFilteredEntities} hidden by filters`"
-                class="badge"
-                v-else
-                :class="{active: entitiesHidden}"
-              >{{ shownEntities }} / {{ totalEntities }}</span>
-            </div>
-            <span
-              v-show="totalHiddenEntities > 0 && !filterQuery"
-              class="hidden-indicator"
-            >
-              <span class="badge">
-                <i class="material-icons">visibility_off</i>
-                <span>{{ totalHiddenEntities > 99 ? '99+' : totalHiddenEntities }}</span>
-              </span>
-              <div class="hi-tooltip">
-                <span>Right click an entity to hide it. </span>
-                <a @click="$modal.show('hidden-entities')">View hidden</a><span>.</span>
-              </div>
-            </span>
-          </div>
-          <div class="row">
-            <div class="actions">
-              <a
-                @click.prevent="toggleExpandCollapse"
-                :title="isExpanded ? 'Collapse All' : 'Expand All'"
-              >
-                <i class="material-icons">{{ isExpanded ? 'unfold_less' : 'unfold_more' }}</i>
-              </a>
-
-              <a
-                @click.prevent="refreshTables"
-                :title="'Refresh'"
-              >
-                <i class="material-icons">refresh</i>
-              </a>
-            </div>
-            <div>
-              <a
-                @click.prevent="newTable"
-                title="New Table"
-                class="create-table"
-              >
-                <i class="material-icons">add</i>
-              </a>
-            </div>
-          </div>
+            <i class="material-icons">{{ isExpanded ? 'unfold_less' : 'unfold_more' }}</i>
+          </button>
+          <button
+            @click.prevent="refreshTables"
+            :title="'Refresh'"
+            :disabled="tablesLoading"
+          >
+            <i class="material-icons">refresh</i>
+          </button>
+          <button
+            @click.prevent="newTable"
+            title="New Table"
+            class="create-table"
+            :disabled="tablesLoading"
+            v-if="canCreateTable"
+          >
+            <i class="material-icons">add</i>
+          </button>
         </div>
-        <div
-          class="list-body"
-          ref="entityContainer"
-          v-show="tables.length > 0"
-        >
-          <div class="with-schemas">
-            <template v-for="(blob, index) in schemaTables">
-              <sidebar-folder
-                v-if="!hiddenSchemas.includes(blob.schema)"
-                :title="blob.schema"
-                :key="blob.schema"
-                :skip-display="blob.skipSchemaDisplay || schemaTables.length - hiddenSchemas.length < 2"
-                :expanded-initially="index === 0"
-                :force-expand="allExpanded || filterQuery"
-                :force-collapse="allCollapsed"
-                @contextmenu.prevent.stop="$bks.openMenu({ item: blob, event: $event, options: schemaMenuOptions})"
-              >
-                <template v-for="table in blob.tables">
-                  <table-list-item
-                    v-if="!hiddenEntities.includes(table)"
-                    :key="entityKey(table)"
-                    :pinned="pinnedEntities.includes(table)"
-                    :container="$refs.entityContainer"
-                    @selected="tableSelected"
-                    @unselected="tableUnselected"
-                    :table="table"
-                    :connection="connection"
-                    :force-expand="allExpanded"
-                    :force-collapse="listItemsCollapsed"
-                    @contextmenu.prevent.stop="$bks.openMenu({ item: table, event: $event, options: tableMenuOptions})"
-                  />
-                </template>
-                <template v-for="routine in blob.routines">
-                  <routine-list-item
-                    v-if="!hiddenEntities.includes(routine)"
-                    :key="entityKey(routine)"
-                    :pinned="pinnedEntities.includes(routine)"
-                    :container="$refs.entityContainer"
-                    :routine="routine"
-                    :connection="connection"
-                    :force-expand="allExpanded"
-                    :force-collapse="listItemsCollapsed"
-                    @contextmenu.prevent.stop="$bks.openMenu({item: routine, event: $event, options: routineMenuOptions})"
-                  />
-                </template>
-              </sidebar-folder>
-            </template>
-          </div>
-        </div>
-
-        <!-- TODO (gregory): Make the 'no tables div nicer' -->
-        <div
-          class="empty truncate"
-          v-if="!tables || tables.length === 0"
-        >
-          There are no entities in<br> <span>{{ database }}</span>
-        </div>
-
-        <portal to="modals">
-          <HiddenEntitiesModal
-            :hidden-entities="hiddenEntities"
-            :hidden-schemas="hiddenSchemas"
-          />
-        </portal>
-      </nav>
-      <div
-        class="empty"
-        v-else
-      >
-        {{ tablesLoading }}
       </div>
-    </div>
+
+      <virtual-table-list />
+
+      <!-- TODO (gregory): Make the 'no tables div nicer' -->
+      <div
+        class="empty truncate"
+        v-if="!tablesLoading && (!tables || tables.length === 0)"
+      >
+        <p class="no-entities" v-if="database">
+          There are no entities in the <strong>{{ database }}</strong> database
+        </p>
+        <p class="no-entities" v-else>
+          Please select a database to see tables, views, and other entities
+        </p>
+      </div>
+    </nav>
+
+    <portal to="modals">
+      <HiddenEntitiesModal
+        :hidden-entities="hiddenEntities"
+        :hidden-schemas="hiddenSchemas"
+      />
+    </portal>
   </div>
 </template>
 
-<script>
+<script lang="ts">
   import _ from 'lodash'
-  import HiddenEntitiesModal from './HiddenEntitiesModal'
-  import TableListItem from './table_list/TableListItem'
-  import RoutineListItem from './table_list/RoutineListItem'
+  import HiddenEntitiesModal from './HiddenEntitiesModal.vue'
   import Split from 'split.js'
   import { mapState, mapGetters } from 'vuex'
   import TableFilter from '../../../mixins/table_filter'
   import TableListContextMenus from '../../../mixins/TableListContextMenus'
   import PinnedTableList from '@/components/sidebar/core/PinnedTableList.vue'
-  import SidebarFolder from '@/components/common/SidebarFolder.vue'
   import { AppEvent } from '@/common/AppEvent'
+  import VirtualTableList from './table_list/VirtualTableList.vue'
+  import { TableOrView, Routine } from "@/lib/db/models";
+import { matches } from '@/common/transport/TransportPinnedEntity'
+
   export default {
     mixins: [TableFilter, TableListContextMenus],
-    components: { TableListItem, RoutineListItem, PinnedTableList, SidebarFolder, HiddenEntitiesModal },
+    components: { PinnedTableList, HiddenEntitiesModal, VirtualTableList },
     data() {
       return {
+        isDev: window.platformInfo.isDevelopment,
         tableLoadError: null,
         allExpanded: null,
         allCollapsed: null,
@@ -245,6 +190,10 @@
       }
     },
     computed: {
+      ...mapGetters(['dialectData']),
+      createDisabled() {
+        return !!this.dialectData.disabledFeatures.createTable
+      },
       totalEntities() {
         return this.tables.length + this.routines.length - this.hiddenEntities.length
       },
@@ -295,14 +244,22 @@
           this.$refs.tables
         ]
       },
-      supportsRoutines() {
-        return this.connection.supportedFeatures().customRoutines
+      async supportsRoutines() {
+        return this.supportedFeatures.customRoutines
+      },
+      canCreateTable() {
+        return !this.dialectData.disabledFeatures?.createTable
       },
       loadedWithPins() {
         return !this.tablesLoading && this.pinnedEntities.length > 0
       },
-      ...mapState(['selectedSidebarItem', 'tables', 'routines', 'connection', 'database', 'tablesLoading']),
-      ...mapGetters(['schemaTables', 'filteredTables', 'filteredRoutines']),
+      rootBindings() {
+        return [
+          { event: AppEvent.togglePinTableList, handler: this.togglePinTableList },
+        ]
+      },
+      ...mapState(['selectedSidebarItem', 'tables', 'routines', 'database', 'tablesLoading', 'supportedFeatures']),
+      ...mapGetters(['filteredTables', 'filteredRoutines', 'dialectData']),
       ...mapGetters({
           pinnedEntities: 'pins/pinnedEntities',
           orderedPins: 'pins/orderedPins',
@@ -323,67 +280,39 @@
       },
     },
     methods: {
-      entityKey(entity) {
-        const key = [entity.schema, entity.name, entity.entityType].filter((v) => !!v)
-        return key.join(".")
-      },
-      tableFromKey(key){
-        return this.tables.find((t) => this.entityKey(t) === key)
-      },
-      async tableSelected(table) {
-        // FIXME: Make this 'tableExpanded' or similar
-        //        This isn't anything to do with table selection
-        await this.$store.dispatch('updateTableColumns', table)
-        const k = this.entityKey(table)
-        if (this.expandedTables?.includes(k))
-          return;
-        this.expandedTables = [...this.expandedTables, k]
-      },
-      async tableUnselected(table) {
-        this.expandedTables = _.without(this.expandedTables, this.entityKey(table))
-      },
       clearFilter() {
         this.filterQuery = null
       },
       toggleExpandCollapse() {
-        if(!this.isExpanded) {
-          this.isExpanded = true
-           this.listItemsCollapsed = null;
-        this.allExpanded = Date.now()
-        } else {
-          this.isExpanded = false
-           if (this.listItemsCollapsed) {
-          this.allCollapsed = Date.now()
-        } else {
-          this.listItemsCollapsed = Date.now()
-        }
-        }
+        this.isExpanded = !this.isExpanded
+        this.trigger(AppEvent.toggleExpandTableList, this.isExpanded)
       },
+      // FIXME (azmi): expandedTables is always empty
       refreshExpandedColumns() {
-        this.expandedTables.forEach((k) => {
-          const t = this.tableFromKey(k)
-          if (t) {
-            this.$store.dispatch('updateTableColumns', t)
-          }
+        this.expandedTables.forEach((table) => {
+          this.$store.dispatch('updateTableColumns', table)
         })
       },
       refreshPinnedColumns() {
         this.orderedPins.forEach((p) => {
-          const t = this.tables.find((table) => p.matches(table))
+          const t = this.tables.find((table) => matches(p, table))
           if (t) {
             this.$store.dispatch('updateTableColumns', t)
           }
         })
       },
-      refreshTables() {
-        this.$store.dispatch('updateRoutines')
-        this.$store.dispatch('updateTables').then(() => {
+      async refreshTables() {
+        try {
+          this.$store.dispatch('updateRoutines')
+          await this.$store.dispatch('updateTables')
           // When we refresh sidebar tables we need to also refresh:
           // 1. Any open tables
           // 2. Any pinned tables
           this.refreshExpandedColumns()
           this.refreshPinnedColumns()
-        })
+        } catch (ex) {
+          this.$noty.error(`Unable to refresh tables ${ex.message}`)
+        }
       },
       newTable() {
         this.$root.$emit(AppEvent.createTable)
@@ -396,22 +325,47 @@
           this.$store.commit('selectSidebarItem', null)
         }
       },
+      togglePinTableList(entity: TableOrView | Routine, pinned?: boolean) {
+        if (typeof pinned === 'undefined') {
+          pinned = !this.pinnedEntities.includes(entity)
+        }
+
+        if (pinned) this.$store.dispatch('pins/add', entity)
+        else this.$store.dispatch('pins/remove', entity)
+
+        if (pinned && entity.entityType === 'table') {
+          this.$store.dispatch('updateTableColumns', entity)
+        }
+      }
     },
     mounted() {
       document.addEventListener('mousedown', this.maybeUnselect)
-      this.split = Split(this.components, {
-        elementStyle: (dimension, size) => ({
+      const components = [this.$refs.pinned, this.$refs.tables]
+      this.split = Split(components, {
+        elementStyle: (_dimension, size) => ({
             'flex-basis': `calc(${size}%)`,
         }),
         direction: 'vertical',
         sizes: this.sizes,
       })
+      this.registerHandlers(this.rootBindings)
     },
     beforeDestroy() {
       document.removeEventListener('mousedown', this.maybeUnselect)
       if(this.split) {
         this.split.destroy()
       }
+      this.unregisterHandlers(this.rootBindings)
     }
   }
 </script>
+<style scoped>
+  .table-action-wrapper{
+    display: flex;
+    flex-direction: row;
+  }
+  p.no-entities {
+    width: 100%;
+    white-space:normal;
+  }
+</style>

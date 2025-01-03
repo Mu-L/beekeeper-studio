@@ -4,17 +4,22 @@
     @before-open="onBeforeOpened"
     :name="modalName"
   >
-    <form @submit.prevent="onSubmit">
+    <!-- TODO: Make sure one of the elements in this modal is focused so that the keyboard trap works -->
+    <form
+      v-kbd-trap="true"
+      @submit.prevent="onSubmit"
+    >
       <div class="dialog-content">
         <div class="dialog-c-title flex flex-middle">
           Hidden Entities
         </div>
-        <span class="close-btn btn btn-fab">
-          <i
-            class="material-icons"
-            @click.prevent="closeModal"
-          >clear</i>
-        </span>
+        <a
+          class="close-btn btn btn-fab"
+          href="#"
+          @click.prevent="closeModal"
+        >
+          <i class="material-icons">clear</i>
+        </a>
         <div class="modal-form">
           <div class="list-container">
             <div
@@ -121,6 +126,7 @@
 
 <script lang="ts">
   import TableIcon from '@/components/common/TableIcon.vue'
+  import { AppEvent } from "@/common/AppEvent"
 
   export default {
     props: ['hiddenEntities', 'hiddenSchemas'],
@@ -146,13 +152,13 @@
         this.entities = [...this.hiddenEntities]
         this.schemas = [...this.hiddenSchemas]
       },
-      unhideSchema(index: number) { 
+      unhideSchema(index: number) {
         const [schema] = this.schemas.splice(index, 1)
-        this.$store.dispatch('hideEntities/removeSchema', schema)
+        this.trigger(AppEvent.toggleHideSchema, schema, false)
       },
       unhideEntity(index: number) {
         const [entity] = this.entities.splice(index, 1)
-        this.$store.dispatch('hideEntities/removeEntity', entity)
+        this.trigger(AppEvent.toggleHideEntity, entity, false)
       },
       closeModal() {
         this.$modal.hide(this.modalName)

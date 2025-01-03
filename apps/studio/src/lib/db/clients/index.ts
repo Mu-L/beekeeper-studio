@@ -1,13 +1,4 @@
 // Copyright (c) 2015 The SQLECTRON Team
-
-import mysql from './mysql';
-import postgresql from './postgresql';
-import sqlserver from './sqlserver';
-import sqlite from './sqlite';
-import cassandra from './cassandra';
-import bigquery from './bigquery.js';
-
-
 export function findClient(key: string): Client | undefined {
   const client = CLIENTS.find((cli) => cli.key === key);
   if(!client) return undefined;
@@ -126,6 +117,14 @@ export const CLIENTS: ClientConfig[] = [
     ],
   },
   {
+    key: 'oracle',
+    name: 'Oracle',
+    defaultPort: 1521,
+    disabledFeatures: [
+      'server:socketPath'
+    ]
+  },
+  {
     key: 'bigquery',
     name: 'BigQuery',
     defaultPort: 443,
@@ -140,17 +139,49 @@ export const CLIENTS: ClientConfig[] = [
       'scriptCreateTable',
     ],
   },
+  {
+    key: 'firebird',
+    name: 'Firebird',
+    defaultPort: 3050,
+    disabledFeatures: [
+      'server:schema',
+      'server:socketPath',
+    ],
+  },
+  {
+    key: 'tidb',
+    name: 'TiDB',
+    defaultPort: 4000,
+    disabledFeatures: [
+      'server:schema',
+      'server:domain',
+    ],
+  },
+  {
+    key: 'libsql',
+    name: 'LibSQL',
+    defaultPort: 8080,
+    defaultDatabase: ':memory:',
+    disabledFeatures: [
+      'server:ssl',
+      'server:host',
+      'server:port',
+      'server:socketPath',
+      'server:user',
+      'server:password',
+      'server:schema',
+      'server:domain',
+      'server:ssh',
+      'scriptCreateTable',
+      'cancelQuery',
+    ],
+  },
+  {
+    key: 'clickhouse',
+    name: 'ClickHouse',
+    defaultPort: 8123,
+    disabledFeatures: [
+      'server:socketPath',
+    ],
+  }
 ];
-
-
-export default {
-  mysql,
-  postgresql,
-  sqlserver,
-  sqlite,
-  cassandra,
-  redshift: postgresql,
-  mariadb: mysql,
-  cockroachdb: postgresql,
-  bigquery,
-};

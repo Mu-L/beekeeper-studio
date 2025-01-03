@@ -6,7 +6,6 @@ const log = rawLog.scope('AppEvent')
 export enum AppEvent {
   menuClick = 'menu-click',
   settingsChanged = "sc-refresh",
-  menuStyleChanged = 'mc-style',
   newTab = 'nt',
   closeTab = 'ct',
   closeAllTabs = 'close_all_tabs',
@@ -15,19 +14,43 @@ export enum AppEvent {
   openExternally = 'oe',
   toggleSidebar = 'ts',
   beginExport = 'be',
+  beginImport = 'beginImport',
   createTable = 'new_table',
   openTableProperties = 'loadTableProperties',
   loadTable = 'loadTable',
   quickSearch = 'quickSearch',
   promptLogin = 'cloud_signin',
   promptQueryImport = 'cloud_q_import',
+  promptQueryExport = 'q_export',
   promptConnectionImport = 'cloud_c_import',
+  promptSqlFilesImport = 'q_files_import',
+  enterLicense = 'enter_license',
   hideEntity = 'hideEntity',
   hideSchema = 'hideSchema',
+  toggleHideEntity = 'toggleHideEntity',
+  toggleHideSchema = 'toggleHideSchema',
+  exportTables = 'exportTables',
+  setDatabaseElementName = 'setDatabaseElementName',
   deleteDatabaseElement = 'deleteDatabaseElement',
   dropDatabaseElement = 'dropDatabaseElement',
   duplicateDatabaseTable = 'duplicateDatabaseTable',
-  upgradeModal = 'showUpgradeModal'
+  backupDatabase = 'backupDatabase',
+  restoreDatabase = 'restoreDatabase',
+  upgradeModal = 'upgradeModal',
+  toggleExpandTableList = 'toggleExpandTableList',
+  togglePinTableList = 'togglePinTableList',
+  dropzoneEnter = 'dropzoneEnter',
+  dropzoneDrop = 'dropzoneDrop',
+  createConfirmModal = 'createConfirmModal',
+  showConfirmModal = 'showConfirmModal',
+  /** Triggered when the license valid date or support date has expired */
+  licenseExpired = 'licenseExpired',
+  /** Triggered when the license valid date has expired */
+  licenseValidDateExpired = 'licenseValidDateExpired',
+  /** Triggered when the license support date has expired */
+  licenseSupportDateExpired = 'licenseSupportDateExpired',
+  switchLicenseState = 'switchLicenseState',
+  toggleBeta = 'toggleBeta'
 }
 
 export interface RootBinding {
@@ -48,9 +71,9 @@ export const AppEventMixin = Vue.extend({
         this.$root.$off(event, handler)
       })
     },
-    trigger<T>(event: AppEvent, options: T) {
-      log.debug('trigger', event, options)
-      this.$root.$emit(event.toString(), options)
+    trigger(event: AppEvent, ...args: any) {
+      log.debug('trigger', event, args)
+      this.$root.$emit(event.toString(), ...args)
     }
   }
 

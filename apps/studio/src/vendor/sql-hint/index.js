@@ -1,12 +1,15 @@
 /* eslint-disable */
 // "forked" from CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/5/LICENSE
+
+import CodeMirror from "codemirror";
+
 (function(mod) {
-  if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../../../../node_modules/codemirror/lib/codemirror"), require("../../../../../node_modules/codemirror/mode/sql/sql"));
-  else if (typeof define == "function" && define.amd) // AMD
-    define(["../../../../../node_modules/codemirror/lib/codemirror", "../../../../../node_modules/codemirror/mode/sql/sql"], mod);
-  else // Plain browser env
+  // if (typeof exports == "object" && typeof module == "object") // CommonJS
+  //   mod(require("../../../../../node_modules/codemirror/lib/codemirror"), require("../../../../../node_modules/codemirror/mode/sql/sql"));
+  // else if (typeof define == "function" && define.amd) // AMD
+  //   define(["../../../../../node_modules/codemirror/lib/codemirror", "../../../../../node_modules/codemirror/mode/sql/sql"], mod);
+  // else // Plain browser env
     mod(CodeMirror);
 })(function(CodeMirror) {
   "use strict";
@@ -163,6 +166,9 @@
       if (table !== oldTable) alias = true;
     }
 
+    if (alias) editor.activeAlias = aliasTable;
+    else editor.activeAlias = undefined;
+
     var columns = editor.options.getColumns ? await editor.options.getColumns(table): getTable(table)
 
     if (columns && columns.columns)
@@ -256,6 +262,13 @@
 
     if (defaultTable.columns)
       defaultTable = defaultTable.columns;
+
+    /*
+     * Getting info of which alias is in autocomplete.
+     * Useful for leaving alias to be unquoted in postgres
+     * which is handled outside of this module
+     */
+    editor.activeAlias = undefined;
 
     var cur = editor.getCursor();
     var result = [];

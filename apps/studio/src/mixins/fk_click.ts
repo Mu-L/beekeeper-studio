@@ -1,5 +1,7 @@
+import { monthAgo } from '@/common/date';
+import { SmartLocalStorage } from '@/common/LocalStorage';
 import rawLog from 'electron-log'
-import { Tabulator } from 'tabulator-tables';
+import { CellComponent } from 'tabulator-tables';
 
 const log = rawLog.scope('fk_click');
 
@@ -23,20 +25,20 @@ export const FkLinkMixin = {
           clickMenu.push({
             label: `<x-menuitem><x-label>${x.toTable}(${x.toColumn})</x-label></x-menuitem>`,
             action: (_e, cell) => {
-              this.fkClick(x, _e, cell);
+              this.fkClick(x, cell);
             }
           })
         })
       }
 
-      const fkClick = (e, cell) => this.fkClick(keyDatas[0], e, cell)
+      const fkClick = (_e, cell) => this.fkClick(keyDatas[0], cell)
 
       const keyResult = {
         headerSort: false,
         download: false,
         width: keyWidth,
         resizable: false,
-        field: keyDatas[0].fromColumn + '-link--bks',
+        field: (keyDatas[0].fromColumn ?? column.field) + '-link--bks',
         title: "",
         cssClass: "foreign-key-button",
         cellClick: clickMenu.length === 0 ? fkClick : null,
@@ -48,7 +50,7 @@ export const FkLinkMixin = {
       return keyResult
     },
 
-    async fkClick(rawKeyData, _e, cell: Tabulator.CellComponent) {
+    async fkClick(rawKeyData, cell: CellComponent) {
       log.debug('fk click', rawKeyData)
       const fromColumn = cell.getField().replace(/-link--bks$/g, "")
 
@@ -111,8 +113,18 @@ export const FkLinkMixin = {
         });
       });
 
+      let openDetailView = true
+      if (this.$store.getters.isCommunity) {
+        const lastOpen = SmartLocalStorage.getDate('openJSONViewerViaFK__community')
+        if (!lastOpen || lastOpen < monthAgo()) {
+          SmartLocalStorage.setDate('openJSONViewerViaFK__community', new Date())
+        } else {
+          openDetailView = false
+        }
+      }
+
       const payload = {
-        table, filters, titleScope: values.join(',')
+        table, filters, titleScope: values.join(','), openDetailView,
       }
       this.$root.$emit('loadTable', payload)
     },

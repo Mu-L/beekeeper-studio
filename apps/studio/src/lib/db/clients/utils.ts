@@ -3,9 +3,20 @@ import _ from 'lodash'
 import logRaw from 'electron-log'
 import { TableChanges, TableDelete, TableFilter, TableInsert, TableUpdate } from '../models'
 import { joinFilters } from '@/common/utils'
+import { IdentifyResult } from 'sql-query-identifier/lib/defines'
+import {fromIni} from "@aws-sdk/credential-providers";
+import {Signer} from "@aws-sdk/rds-signer";
+import globals from "@/common/globals";
 
 const log = logRaw.scope('db/util')
 
+export class ClientError extends Error {
+  helpLink = null
+  constructor(message: string, helpLink: string) {
+    super(message)
+    this.helpLink = helpLink
+  }
+}
 
 export function escapeString(value) {
   if (_.isNil(value)) return null
@@ -46,7 +57,7 @@ export function buildSchemaFilter(filter, schemaField = 'schema_name') {
   return where.join(' AND ');
 }
 
-export function buildDatabseFilter(filter, databaseField) {
+export function buildDatabaseFilter(filter, databaseField) {
   if (!filter) {
     return null
   }
@@ -90,12 +101,14 @@ export function buildFilterString(filters: TableFilter[], columns = []) {
           : '?'
 
         return `${field} ${item.type.toUpperCase()} (${questionMarks})`
+      } else if (item.type.includes('is')) {
+        return `${field} ${item.type.toUpperCase()} NULL`
       }
       return `${field} ${item.type.toUpperCase()} ?`
     })
     filterString = "WHERE " + joinFilters(allFilters, filters)
 
-    filterParams = filters.flatMap((item) => {
+    filterParams = filters.filter((item) => !!item.value).flatMap((item) => {
       return _.isArray(item.value) ? item.value : [item.value]
     })
   }
@@ -111,7 +124,7 @@ export function applyChangesSql(changes: TableChanges, knex: any): string {
     ...buildDeleteQueries(knex, changes.deletes || [])
   ].filter((i) => !!i && _.isString(i)).join(';')
 
-  if (queries.length) 
+  if (queries.length)
     return queries.endsWith(';') ? queries : `${queries};`
 }
 
@@ -175,17 +188,27 @@ export function buildInsertQuery(knex, insert: TableInsert, columns = [], bitCon
     const insertColumns = Object.keys(item)
     insertColumns.forEach((ic) => {
       const matching = _.find(columns, (c) => c.columnName === ic)
-      if (matching && matching.dataType && matching.dataType.startsWith('bit(')) {
+      if (matching && matching.dataType && matching.dataType.startsWith('bit(') && !_.isNil(item[ic])) {
         if (matching.dataType === 'bit(1)') {
           item[ic] = bitConversionFunc(item[ic])
         } else {
           item[ic] = parseInt(item[ic].split("'")[1], 2)
         }
+      } else if (matching && matching.dataType && matching.dataType.startsWith('bit') && _.isBoolean(item[ic])) {
+        item[ic] = item[ic] ? 1 : 0;
+      }
+
+      // HACK (@day): fixes #1734. Knex reads any '?' in identifiers as a parameter, so we need to escape any that appear.
+      if (ic.includes('?')) {
+        const newIc = ic.replaceAll('?', '\\?');
+        item[newIc] = item[ic];
+        delete item[ic];
       }
     })
 
   })
-  const builder = knex(insert.table)
+  const table = insert.dataset ? `${insert.dataset}.${insert.table}` : insert.table;
+  const builder = knex(table);
   if (insert.schema) {
     builder.withSchema(insert.schema)
   }
@@ -196,10 +219,13 @@ export function buildInsertQuery(knex, insert: TableInsert, columns = [], bitCon
 }
 
 export function buildInsertQueries(knex, inserts) {
+  if (!inserts) return []
   return inserts.map(insert => buildInsertQuery(knex, insert))
 }
 
 export function buildUpdateQueries(knex, updates: TableUpdate[]) {
+  if (!updates) return []
+
   return updates.map(update => {
     const where = {}
     const updateblob = {}
@@ -207,9 +233,15 @@ export function buildUpdateQueries(knex, updates: TableUpdate[]) {
       where[column] = value
     })
 
+    // HACK (@day): fixes #1734. Knex reads any '?' in identifiers as a parameter, so we need to escape any that appear.
+    if (update.column.includes('?')) {
+      update.column = update.column.replaceAll('?', '\\?');
+    }
+
     updateblob[update.column] = update.value
 
-    const query = knex(update.table)
+    const table = update.dataset ? `${update.dataset}.${update.table}` : update.table;
+    const query = knex(table)
       .withSchema(update.schema)
       .where(where)
       .update(updateblob)
@@ -225,7 +257,9 @@ export function buildSelectQueriesFromUpdates(knex, updates: TableUpdate[]) {
       where[column] = value
     })
 
-    const query = knex(update.table)
+    const table = update.dataset ? `${update.dataset}.${update.table}` : update.table;
+
+    const query = knex(table)
       .withSchema(update.schema)
       .where(where)
       .select('*')
@@ -245,7 +279,9 @@ export async function withClosable<T>(item, func): Promise<T> {
 
 }
 
+
 export function buildDeleteQueries(knex, deletes: TableDelete[]) {
+  if (!deletes) return []
   return deletes.map(deleteRow => {
     const where = {}
 
@@ -253,10 +289,60 @@ export function buildDeleteQueries(knex, deletes: TableDelete[]) {
       where[column] = value
     })
 
-    return knex(deleteRow.table)
+    const table = deleteRow.dataset ? `${deleteRow.dataset}.${deleteRow.table}` : deleteRow.table;
+
+    return knex(table)
       .withSchema(deleteRow.schema)
       .where(where)
       .delete()
       .toQuery()
   })
+}
+
+export function isAllowedReadOnlyQuery (identifiedQueries: IdentifyResult[], readOnlyMode: boolean): boolean {
+  return (!readOnlyMode || readOnlyMode && identifiedQueries.every(f => ['LISTING', 'INFORMATION'].includes(f.executionType?.toUpperCase())))
+}
+
+export const errorMessages = {
+  readOnly: 'Write action(s) not allowed in Read-Only Mode.'
+}
+
+export async function getIAMPassword(awsProfile: string, region: string, hostname: string, port: number, username: string): Promise<string> {
+  const nodeProviderChainCredentials = fromIni({
+    profile: awsProfile ?? "default",
+  });
+  const signer = new Signer({
+    credentials: nodeProviderChainCredentials,
+    region,
+    hostname,
+    port,
+    username,
+  });
+  return  await signer.getAuthToken();
+}
+
+let resolvedPw: string | undefined;
+let tokenExpiryTime: number | null = null;
+
+export async function refreshTokenIfNeeded(redshiftOptions: any, server: any, port: number): Promise<string> {
+  if(!redshiftOptions?.iamAuthenticationEnabled){
+    return null
+  }
+
+  const now = Date.now();
+
+  if (!resolvedPw || !tokenExpiryTime || now >= tokenExpiryTime - globals.iamRefreshBeforeTime) { // Refresh 2 minutes before expiry
+    log.info("Refreshing IAM token...");
+    resolvedPw = await getIAMPassword(
+      redshiftOptions.awsProfile ?? "default",
+      redshiftOptions?.awsRegion,
+      server.config.host,
+      server.config.port || port,
+      server.config.user
+    );
+
+    tokenExpiryTime = now + globals.iamExpiryTime; // Tokens last 15 minutes
+  }
+
+  return resolvedPw;
 }

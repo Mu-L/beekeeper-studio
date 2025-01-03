@@ -1,8 +1,9 @@
 <template>
   <div class="fixed">
     <div class="data-select-wrap">
+      <!-- FIXME: move this comparison to the DialectData -->
       <p
-        v-if="this.connection.connectionType === 'sqlite'"
+        v-if="this.connectionType === 'sqlite'"
         class="sqlite-db-name"
         :title="selectedDatabase"
       >
@@ -14,10 +15,12 @@
         v-model="selectedDatabase"
         :options="availableDatabases"
         :components="{OpenIndicator}"
+        placeholder="Select a database..."
         class="dropdown-search"
       />
+      <!-- FIXME: move this comparison to the DialectData -->
       <a
-        v-if="this.connection.connectionType !== 'sqlite'"
+        v-if="this.connectionType !== 'sqlite'"
         class="refresh"
         @click.prevent="refreshDatabases"
         :title="'Refresh Databases'"
@@ -39,9 +42,42 @@
         height="auto"
         :scrollable="true"
       >
-        <div class="dialog-content">
+        <!-- TODO: Make sure one of the elements in this modal is focused so that the keyboard trap works -->
+        <div
+          v-if="this.connectionType === 'oracle'"
+          class="dialog-content"
+          v-kbd-trap="true"
+        >
+          <p>
+            Oracle has a lot of <a
+              class="external-link"
+              href="https://docs.oracle.com/cd/B19306_01/server.102/b14231/create.htm#i1008760"
+            >configuration requirements to create a new database</a> which makes it difficult for Beekeeper to do automatically.
+          </p>
+          <p>Beekeeper can generate you some boilerplate code to get you started if you like.</p>
+          <div class="vue-dialog-buttons">
+            <button
+              class="btn btn-flat"
+              type="button"
+              @click.prevent="$modal.hide('config-add-database')"
+            >
+              Cancel
+            </button>
+            <button
+              class="btn btn-primary"
+              type="button"
+              @click.prevent="createDatabaseSQL"
+            >
+              Generate Create Database Boilerplate
+            </button>
+          </div>
+        </div>
+        <div
+          v-else
+          class="dialog-content"
+          v-kbd-trap="true"
+        >
           <add-database-form
-            :connection="connection"
             @databaseCreated="databaseCreated"
             @cancel="$modal.hide('config-add-database')"
           />
@@ -53,18 +89,16 @@
 
 <script type="text/javascript">
   import _ from 'lodash'
-  import { ipcRenderer } from 'electron'
   import vSelect from 'vue-select'
   import {AppEvent} from '@/common/AppEvent'
-  import AddDatabaseForm from "@/components/connection/AddDatabaseForm"
+  import AddDatabaseForm from "@/components/connection/AddDatabaseForm.vue"
+  import { mapActions, mapState } from 'vuex'
 
   export default {
-    props: [ 'connection' ],
+    props: [ ],
     data() {
       return {
-        currentDatabase: null,
         selectedDatabase: null,
-        dbs: [],
         OpenIndicator: {
           render: createElement => createElement('i', {class: {'material-icons': true}}, 'arrow_drop_down')
         }
@@ -75,33 +109,44 @@
       AddDatabaseForm
     },
     methods: {
-      async refreshDatabases() {
-        this.dbs = await this.connection.listDatabases()
-      },
+      ...mapActions({refreshDatabases: 'updateDatabaseList'}),
+      ...mapState({ connectionType: 'connectionType' }),
       async databaseCreated(db) {
         this.$modal.hide('config-add-database')
-        console.log(this.selectedDatabase)
-        if (this.connection.connectionType === 'sqlite') {
+        // FIXME: move this comparison to the DialectData
+        if (['sqlite', 'firebird'].includes(this.connectionType)) {
           const fileLocation = this.selectedDatabase.split('/')
           fileLocation.pop()
-          return ipcRenderer.send(AppEvent.menuClick, 'newWindow', { url: `${fileLocation.join('/')}/${db}.db` })
+          const url = this.connectionType === 'sqlite' ? `${fileLocation.join('/')}/${db}.db` : `${fileLocation.join('/')}/${db}`
+          return window.main.send(AppEvent.menuClick, 'newWindow', { url })
         }
         await this.refreshDatabases()
         this.selectedDatabase = db
+      },
+      createDatabaseSQL() {
+        this.$root.$emit(AppEvent.newTab, this.connection.createDatabaseSQL())
+        this.$modal.hide('config-add-database')
       }
     },
     async mounted() {
-      this.selectedDatabase = await this.connection.currentDatabase()
-      this.dbs = await this.connection.listDatabases()
+      this.selectedDatabase = this.currentDatabase
     },
     computed: {
       availableDatabases() {
         return _.without(this.dbs, this.selectedDatabase)
-      }
+      },
+      ...mapState({currentDatabase: 'database', dbs: 'databaseList'}),
     },
     watch: {
+      currentDatabase(newValue) {
+        if (this.selectedDatabase !== newValue) {
+          this.selectedDatabase = newValue
+        }
+      },
       selectedDatabase() {
-        this.$emit('databaseSelected', this.selectedDatabase)
+        if (this.selectedDatabase != this.currentDatabase) {
+          this.$emit('databaseSelected', this.selectedDatabase)
+        }
       }
     }
   }
@@ -114,5 +159,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     padding-left: 0.75rem;
+  }
+
+  .external-link {
+    text-decoration: underline;
+    & :hover {
+      text-decoration: none;
+    }
   }
 </style>
