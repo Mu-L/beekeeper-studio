@@ -1,5 +1,6 @@
 /* eslint-disable */
 const path = require('path')
+const fs = require('fs')
 const { resolve } = require('path')
 /* eslint-enable */
 
@@ -52,7 +53,8 @@ module.exports = {
       require.resolve('jest-transform-stub'),
     '^.+\\.jsx?$': require.resolve('babel-jest'),
     '^.+\\.mjs$': require.resolve('babel-jest'),
-    '^.+\\.tsx?$': [require.resolve('ts-jest'), { babelConfig: true, isolatedModules: true}]
+    '^.+\\.tsx?$': [require.resolve('ts-jest'), { babelConfig: true, isolatedModules: true}],
+    '^.+\\.ini$': '<rootDir>/tests/transformers/jest-raw-text-transformer.js',
   },
   setupFilesAfterEnv: ['./tests/init/setup.js'],
   setupFiles: ['./tests/init/env-setup.js'],

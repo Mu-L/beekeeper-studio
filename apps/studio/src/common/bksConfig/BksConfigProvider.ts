@@ -24,9 +24,11 @@ export interface ConfigEntryDetailWarning {
 
 type IniValue = string | number | boolean | IniArray | undefined;
 
-type ConfigValue = IniValue | Record<string, IniValue>;
+export type ConfigValue = IniValue | Record<string, IniValue>;
 
 export type KeybindingPath = DeepKeyOf<IBksConfig["keybindings"]>;
+
+type ModifierMap = Record<string, string | ((isMac: boolean) => string)>;
 
 interface IBksConfigDebugInfo {
   path: string;
@@ -78,15 +80,15 @@ const electronModifierMap = {
   WINDOWS: "Meta",
 } as const;
 
-const vHotkeyModifierMap = {
+const vHotkeyModifierMap: ModifierMap = {
   CTRL: "ctrl",
   CMD: "cmd",
-  CTRLORCMD: "ctrlOrCmd",
-  CMDORCTRL: "ctrlOrCmd",
+  CTRLORCMD: (isMac) => (isMac ? "meta" : "ctrl"),
+  CMDORCTRL: (isMac) => (isMac ? "meta" : "ctrl"),
   CONTROL: "ctrl",
   COMMAND: "cmd",
-  CONTROLORCOMMAND: "ctrlOrCmd",
-  COMMANDORCONTROL: "ctrlOrCmd",
+  CONTROLORCOMMAND: (isMac) => (isMac ? "meta" : "ctrl"),
+  COMMANDORCONTROL: (isMac) => (isMac ? "meta" : "ctrl"),
   SHIFT: "shift",
   ALT: "alt",
   OPTION: "option",
@@ -96,13 +98,42 @@ const vHotkeyModifierMap = {
   WINDOWS: "windows",
 } as const;
 
+const uiModifierMap: ModifierMap = {
+  CTRL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CMD: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CTRLORCMD: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CMDORCTRL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CONTROL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  COMMAND: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CONTROLORCOMMAND: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  COMMANDORCONTROL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  SHIFT: (isMac) => (isMac ? "⇧" : "Shift"),
+  ALT: (isMac) => (isMac ? "⌥" : "Alt"),
+  OPTION: (isMac) => (isMac ? "⌥" : "Alt"),
+  ALTGR: "AltGr",
+  SUPER: (isMac) => (isMac ? "⌘" : "Super"),
+  META: (isMac) => (isMac ? "^" : "Meta"),
+  PAGEUP: "PageUp",
+  PAGEDOWN: "PageDown",
+};
+
 export function convertKeybinding(
   target: "electron" | "v-hotkey" | "codemirror",
   keybinding: string,
   platform: "windows" | "mac" | "linux"
-) {
+): string;
+export function convertKeybinding(
+  target: "ui",
+  keybinding: string,
+  platform: "windows" | "mac" | "linux"
+): string[];
+export function convertKeybinding(
+  target: "electron" | "v-hotkey" | "codemirror" | "ui",
+  keybinding: string,
+  platform: "windows" | "mac" | "linux"
+): string[] | string {
 
-  let modifierMap;
+  let modifierMap: ModifierMap;
   let joinChar = '+'
 
   switch (target) {
@@ -116,6 +147,9 @@ export function convertKeybinding(
       modifierMap = codeMirrorModifierMap;
       joinChar = '-'
       break;
+    case "ui":
+      modifierMap = uiModifierMap;
+      break;
     default:
       log.error("Unrecognized target for keybinding conversion: ", target)
       return;
@@ -125,20 +159,29 @@ export function convertKeybinding(
   for (const _key of keybinding.split("+")) {
     const key = _key.toUpperCase().trim();
 
-    let mod: string = modifierMap[key] ?? key;
+    let mod = modifierMap[key] ?? key;
+
+    if (typeof mod === "function") {
+      mod = mod(platform === "mac");
+    }
 
     if (target === "v-hotkey") {
       mod = mod.toLowerCase();
-      if (mod === "ctrlorcmd") {
-        mod = platform === "mac" ? "meta" : "ctrl";
-      }
     }
 
     if (target === "codemirror" && !modifierMap[key]) {
       mod = mod.toLowerCase();
     }
 
+    if (target === "ui" && !modifierMap[key]) {
+      mod = _.upperFirst(mod.toLowerCase());
+    }
+
     combination.push(mod);
+  }
+
+  if (target === "ui") {
+    return combination;
   }
 
   return combination.join(joinChar);

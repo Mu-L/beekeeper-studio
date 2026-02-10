@@ -207,6 +207,10 @@ export default class NativeMenuActionHandlers implements IMenuActionHandler {
     if (win) win.webContents.send(AppEvent.openPluginManager);
   }
 
+  keyboardShortcuts = (_menuItem: Electron.MenuItem, win: ElectronWindow): void => {
+    if (win) win.webContents.send(AppEvent.openKeyboardShortcuts);
+  }
+
   updatePin = (_1: Electron.MenuItem, win: ElectronWindow) => {
     if (win) win.webContents.send(AppEvent.updatePin)
   }

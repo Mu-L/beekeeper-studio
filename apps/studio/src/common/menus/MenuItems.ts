@@ -324,5 +324,10 @@ export function menuItems(actionHandler: IMenuActionHandler, settings: IGroupedU
       label: 'Manage Plugins',
       click: actionHandler.managePlugins,
     },
+    keyboardShortcuts: {
+      id: 'keyboard-shortcuts',
+      label: 'Keyboard Shortcuts',
+      click: actionHandler.keyboardShortcuts,
+    },
   }
 }
