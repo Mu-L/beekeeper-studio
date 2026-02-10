@@ -79,7 +79,7 @@ save = ctrlOrCmd+s
     ).toBe("ctrl+shift+c");
     expect(convertKeybinding("ui", "CTRLORCMD+SHIFT+C", "linux", {
       arrayMode: true,
-    })).toStrictEqual(["Control", "Shift", "C"]);
+    })).toStrictEqual(["Ctrl", "Shift", "C"]);
   });
 
   it("should detect unrecognized config keys", () => {
@@ -455,7 +455,7 @@ quoted[] = '@'
           {
             key: "refresh",
             label: "Refresh",
-            keybindings: [["F5"], ["Control", "R"]],
+            keybindings: [["F5"], ["Ctrl", "R"]],
           },
         ],
       },
@@ -466,7 +466,7 @@ quoted[] = '@'
           {
             key: "closeTab",
             label: "Close Tab",
-            keybindings: [["Control", "W"]],
+            keybindings: [["Ctrl", "W"]],
           },
           {
             key: "switchTab1",
@@ -482,7 +482,7 @@ quoted[] = '@'
           {
             key: "new-tab-dropdown-item",
             label: "new-tab-dropdown-item",
-            keybindings: [["Control", "L"]],
+            keybindings: [["Ctrl", "L"]],
           },
         ],
       },

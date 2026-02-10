@@ -3,7 +3,6 @@ import _ from "lodash";
 import { BksConfigProvider, KeybindingPath } from "@/common/bksConfig/BksConfigProvider";
 import type { VueConstructor } from "vue/types/umd";
 import { ConfigMetadataProvider } from "@/common/bksConfig/ConfigMetadataProvider";
-import metadata from "../../config-metadata.json";
 
 export function createVHotkeyKeymap(
   obj: Partial<Record<KeybindingPath, any>>
@@ -52,7 +51,6 @@ export default {
     Vue.prototype.$bksConfig = BksConfig;
     Vue.prototype.$bksConfigUI = new ConfigMetadataProvider({
       bksConfig: BksConfig,
-      metadata,
       platformInfo: window.platformInfo,
     });
     Vue.prototype.$config = buildConfig(window.platformInfo);

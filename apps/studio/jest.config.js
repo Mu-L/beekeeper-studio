@@ -1,6 +1,5 @@
 /* eslint-disable */
 const path = require('path')
-const fs = require('fs')
 const { resolve } = require('path')
 /* eslint-enable */
 

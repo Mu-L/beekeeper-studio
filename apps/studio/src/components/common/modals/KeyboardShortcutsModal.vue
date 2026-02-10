@@ -58,15 +58,14 @@ export default Vue.extend({
   data() {
     return {
       modalName: "keyboard-shortcuts-modal",
-      sections: [] as KeybindingSection[],
     };
   },
   computed: {
-    isMac(): boolean {
-      return this.$config.isMac;
-    },
     rootBindings() {
       return [{ event: AppEvent.openKeyboardShortcuts, handler: this.open }];
+    },
+    sections(): KeybindingSection[] {
+      return this.$bksConfigUI.getKeybindingSections();
     },
   },
   mounted() {
@@ -78,7 +77,6 @@ export default Vue.extend({
   methods: {
     open() {
       this.$modal.show(this.modalName);
-      this.sections = this.$bksConfigUI.getKeybindingSections();
     },
     close() {
       this.$modal.hide(this.modalName);
