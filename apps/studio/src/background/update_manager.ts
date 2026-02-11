@@ -34,7 +34,7 @@ function shouldSkipUpdater() {
 }
 
 function checkForUpdates() {
-  if (!BksConfig.general.checkForUpdatesEnabled) {
+  if (BksConfig.general.checkForUpdatesDisabled) {
     log.info('update checks are disabled, skipping')
     return
   }
@@ -58,7 +58,7 @@ export function manageUpdates(allowBeta: boolean, debug?: boolean): void {
     return
   }
 
-  if (!BksConfig.general.checkForUpdatesEnabled) {
+  if (BksConfig.general.checkForUpdatesDisabled) {
     log.info("automatic update checks are disabled")
     return
   }
