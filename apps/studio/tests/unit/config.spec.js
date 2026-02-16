@@ -3,7 +3,7 @@ import {
   BksConfigProvider,
 } from "@/common/bksConfig/BksConfigProvider";
 import { ConfigMetadataProvider } from "@/common/bksConfig/ConfigMetadataProvider";
-import { parseIni, processRawConfig } from "../../src/config/helpers.mjs";
+import { parseIni, processRawConfig } from "@/config/helpers";
 import _ from "lodash";
 import { checkConflicts, checkUnrecognized } from "@/common/bksConfig/mainBksConfig";
 import testConfigIni from "../fixtures/bksConfig/config.ini";
