@@ -1,6 +1,7 @@
 import rawLog from "@bksLogger";
 import _ from "lodash";
 import type { IPlatformInfo } from "../IPlatformInfo";
+import { KeybindingTarget } from "./types";
 
 export interface BksConfigSource {
   defaultConfig: IBksConfig;
@@ -96,8 +97,26 @@ const vHotkeyModifierMap = {
   WINDOWS: "windows",
 } as const;
 
+export const tabulatorModifierMap = {
+  CTRL: "ctrl",
+  CMD: "ctrl",
+  CTRLORCMD: "ctrl",
+  CMDORCTRL: "ctrl",
+  CONTROL: "ctrl",
+  COMMAND: "ctrl",
+  CONTROLORCOMMAND: "ctrl",
+  COMMANDORCONTROL: "ctrl",
+  SHIFT: "shift",
+  ALT: "alt",
+  OPTION: "18",
+  ALTGR: "225",
+  SUPER: "91",
+  META: "224",
+  WINDOWS: "91",
+} as const;
+
 export function convertKeybinding(
-  target: "electron" | "v-hotkey" | "codemirror",
+  target: KeybindingTarget,
   keybinding: string,
   platform: "windows" | "mac" | "linux"
 ) {
@@ -115,6 +134,10 @@ export function convertKeybinding(
     case "codemirror":
       modifierMap = codeMirrorModifierMap;
       joinChar = '-'
+      break;
+    case "tabulator":
+      modifierMap = tabulatorModifierMap;
+      joinChar = ' + ';
       break;
     default:
       log.error("Unrecognized target for keybinding conversion: ", target)
@@ -135,6 +158,10 @@ export function convertKeybinding(
     }
 
     if (target === "codemirror" && !modifierMap[key]) {
+      mod = mod.toLowerCase();
+    }
+
+    if (target === "tabulator" && !modifierMap[key]) {
       mod = mod.toLowerCase();
     }
 
@@ -254,7 +281,7 @@ export class BksConfigProvider {
     return getDebugAll(this.mergedConfig);
   }
 
-  getKeybindings(target: "electron" | "v-hotkey" | "codemirror", path: KeybindingPath) {
+  getKeybindings(target: KeybindingTarget, path: KeybindingPath) {
     const keybindings = this.get(`keybindings.${path}`);
 
     if (isIniArray(keybindings)) {
@@ -265,9 +292,9 @@ export class BksConfigProvider {
 
     if (typeof keybindings !== "string") {
       log.warn(`Invalid keybindings: ${keybindings} at ${path}`);
+      return [];
     }
 
-    // @ts-expect-error keybindings should be a string
     return convertKeybinding(target, keybindings, this.platformInfo.platform);
   }
 
