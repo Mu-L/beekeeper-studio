@@ -56,9 +56,11 @@ export const Mutators = {
     if (ArrayBuffer.isView(value)) {
       return value
     }
+    if (typeof value === 'bigint') return Number(value)
     if (_.isDate(value)) return value.toISOString()
-    if (_.isArray(value)) return preserveComplex? value.map((v) => mutate(v, preserveComplex)) : JSON.stringify(value)
-    if (_.isObject(value)) return preserveComplex? _.mapValues(value, (v) => mutate(v, preserveComplex)) : JSON.stringify(value)
+    const bigIntReplacer = (_k: string, v: any) => typeof v === 'bigint' ? Number(v) : v
+    if (_.isArray(value)) return preserveComplex? value.map((v) => mutate(v, preserveComplex)) : JSON.stringify(value, bigIntReplacer)
+    if (_.isObject(value)) return preserveComplex? _.mapValues(value, (v) => mutate(v, preserveComplex)) : JSON.stringify(value, bigIntReplacer)
     if (_.isBoolean(value)) return value
     return value
   },
