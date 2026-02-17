@@ -154,9 +154,14 @@ module.exports = {
       'pacman'
     ],
     desktop: {
-      'StartupWMClass': 'beekeeper-studio'
+      entry: {
+        'StartupWMClass': 'beekeeper-studio',
+      }
     },
     publish: ['github']
+  },
+  pacman: {
+    depends: ["c-ares", "ffmpeg", "gtk3", "llhttp", "libevent", "libvpx", "libxslt", "libxss", "minizip", "nss", "re2", "snappy", "libnotify", "libappindicator-gtk3"]
   },
   deb: {
     publish: [
@@ -202,13 +207,16 @@ module.exports = {
     // FIXME: Add AppX/MSIX build back in once certificate issues resolved
     target: ['nsis', 'portable'],
     publish: ['github'],
-    sign: "./build/win/sign.js",
+    signtoolOptions: {
+      sign: "./build/win/sign.js",
+    },
   },
   portable: {
     "artifactName": "${productName}-${version}-portable.exe",
   },
   nsis: {
-    oneClick: false
+    oneClick: false,
+    include: './build/win/msvc-redist.nsh'
   },
   appx: {
     applicationId: "beekeeperstudio",

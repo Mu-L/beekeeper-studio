@@ -16,10 +16,12 @@ import { QueryHandlers } from '@/handlers/queryHandlers';
 import { TabHistoryHandlers } from '@/handlers/tabHistoryHandlers'
 import { ExportHandlers } from '@commercial/backend/handlers/exportHandlers';
 import { BackupHandlers } from '@commercial/backend/handlers/backupHandlers';
+import { AwsHandlers } from '@commercial/backend/handlers/awsHandlers';
 import { ImportHandlers } from '@commercial/backend/handlers/importHandlers';
 import { EnumHandlers } from '@commercial/backend/handlers/enumHandlers';
 import { TempHandlers } from '@/handlers/tempHandlers';
 import { DevHandlers } from '@/handlers/devHandlers';
+import { FormatterPresetHandlers } from '@/handlers/formatterPresetHandlers';
 import { LicenseHandlers } from '@/handlers/licenseHandlers';
 import { LockHandlers } from '@/handlers/lockHandlers';
 import { PluginHandlers } from '@/handlers/pluginHandlers';
@@ -57,6 +59,7 @@ export const handlers: Handlers = {
   ...ImportHandlers,
   ...AppDbHandlers,
   ...BackupHandlers,
+  ...AwsHandlers,
   ...FileHandlers,
   ...EnumHandlers,
   ...TempHandlers,
@@ -64,6 +67,7 @@ export const handlers: Handlers = {
   ...PluginHandlers(pluginManager),
   ...TabHistoryHandlers,
   ...LockHandlers,
+  ...FormatterPresetHandlers,
   ...(platformInfo.isDevelopment && DevHandlers),
 };
 
@@ -165,11 +169,9 @@ async function init() {
   ormConnection = new ORMConnection(platformInfo.appDbPath, false);
   await ormConnection.connect();
 
-  try {
-    await pluginManager.initialize();
-  } catch (e) {
+  pluginManager.initialize().catch((e) => {
     log.error("Error initializing plugin manager", e);
-  }
+  });
 
   process.parentPort.postMessage({ type: 'ready' });
 }

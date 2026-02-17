@@ -12,8 +12,8 @@ import rawLog from "@bksLogger";
 import PluginRepositoryService from "./PluginRepositoryService";
 import { UserSetting } from "@/common/appdb/models/user_setting";
 import semver from "semver";
-import { NotFoundPluginError, NotSupportedPluginError } from "./errors";
-import { BksConfig } from "@/common/bksConfig/BksConfigProvider";
+import { NotFoundPluginError, NotFoundPluginViewError, NotSupportedPluginError } from "./errors";
+import { isManifestV0, mapViewsAndMenuFromV0ToV1 } from "./utils";
 
 const log = rawLog.scope("PluginManager");
 
@@ -25,7 +25,7 @@ export type PluginManagerOptions = {
 
 export default class PluginManager {
   private initialized = false;
-  private registry: PluginRegistry;
+  public readonly registry: PluginRegistry;
   private fileManager: PluginFileManager;
   private plugins: PluginContext[] = [];
   pluginSettings: PluginSettings = {};
@@ -36,7 +36,7 @@ export default class PluginManager {
   /** This is a list of plugins that are preinstalled by default. When the
    * application starts, these plugins will be installed automatically. The user
    * should be able to uninstall them later. */
-  static readonly PREINSTALLED_PLUGINS = ["bks-ai-shell"];
+  static readonly PREINSTALLED_PLUGINS = ["bks-ai-shell", "bks-er-diagram"];
 
   constructor(readonly options: PluginManagerOptions) {
     this.fileManager = options.fileManager;
@@ -53,7 +53,7 @@ export default class PluginManager {
 
     const installedPlugins = this.fileManager.scanPlugins();
 
-    log.debug(this.installedPlugins);
+    log.debug("Installed plugins:", installedPlugins);
 
     await this.loadPluginSettings();
 
@@ -84,19 +84,27 @@ export default class PluginManager {
     }
   }
 
-  async getEntries() {
-    this.initializeGuard();
-    return await this.registry.getEntries();
-  }
-
-  async findPluginEntry(id: string): Promise<PluginRegistryEntry> {
-    this.initializeGuard();
-    const entries = await this.getEntries();
-    const entry = entries.find((entry) => entry.id === id);
-    if (!entry) {
-      throw new Error(`Plugin "${id}" not found in registry.`);
+  /**
+   * Check if the view's entrypoint exists. The plugin must be installed,
+   * and the view must be defined in the plugin's manifest.
+   *
+   * @throws if `pluginId` or `viewId` is not found
+   **/
+  viewEntrypointExists(pluginId: string, viewId: string): boolean {
+    const manifest = this.plugins.find((p) => p.manifest.id === pluginId)?.manifest;
+    if (!manifest) {
+      throw new NotFoundPluginError(`Plugin "${pluginId}" not found.`);
     }
-    return entry;
+    const { views } = isManifestV0(manifest)
+      ? mapViewsAndMenuFromV0ToV1(manifest)
+      : manifest.capabilities;
+    const view = views.find((v) => v.id === viewId);
+    if (!view) {
+      throw new NotFoundPluginViewError(
+        `View "${viewId}" not found in plugin "${pluginId}".`
+      );
+    }
+    return this.fileManager.viewEntrypointExists(manifest, view);
   }
 
   async getRepository(pluginId: string): Promise<PluginRepository> {
@@ -109,6 +117,8 @@ export default class PluginManager {
     return this.plugins;
   }
 
+  /** Plugin is not loadable if the **current app version** is lower than the
+   * **minimum app version** required by the plugin. */
   isPluginLoadable(manifest: Manifest): boolean {
     if (!manifest.minAppVersion) {
       return true;
@@ -135,8 +145,7 @@ export default class PluginManager {
 
       if (!this.isPluginLoadable(info.latestRelease.manifest)) {
         throw new NotSupportedPluginError(
-          `Plugin "${info.latestRelease.manifest.id}" is not compatible with app version "${this.options.appVersion}". ` +
-          `Please upgrade Beekeeper Studio to use this plugin.`
+          `${info.latestRelease.manifest.name} requires Beekeeper Studio ≥ 5.5.0. Please update the app first.`
         );
       }
 

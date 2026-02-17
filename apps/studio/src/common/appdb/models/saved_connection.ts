@@ -5,8 +5,9 @@ import { ConnectionString } from 'connection-string'
 import log from '@bksLogger'
 import { AzureCredsEncryptTransformer, EncryptTransformer, SurrealDbEncryptTransformer } from '../transformers/Transformers'
 import { IConnection, SshMode } from '@/common/interfaces/IConnection'
-import { AzureAuthOptions, BigQueryOptions, CassandraOptions, ConnectionType, ConnectionTypes, LibSQLOptions, RedshiftOptions, SQLAnywhereOptions, SurrealDBOptions } from "@/lib/db/types"
+import { AzureAuthOptions, BigQueryOptions, CassandraOptions, ConnectionType, ConnectionTypes, LibSQLOptions, RedshiftOptions, IamAuthOptions, SQLAnywhereOptions, SurrealDBOptions } from "@/lib/db/types"
 import { resolveHomePathToAbsolute } from "@/handlers/utils"
+import { ReadOnlyOrDefault } from "../validators/ReadOnlyOrDefault"
 
 const encrypt = new EncryptTransformer(loadEncryptionKey())
 const azureEncrypt = new AzureCredsEncryptTransformer(loadEncryptionKey())
@@ -196,6 +197,7 @@ export class DbConnectionBase extends ApplicationEntity {
   @Column({ type: 'boolean', nullable: false })
   sslRejectUnauthorized = true
 
+  @ReadOnlyOrDefault()
   @Column({type: 'boolean', nullable: false, default: false})
   readOnlyMode = true
 
@@ -214,6 +216,9 @@ export class DbConnectionBase extends ApplicationEntity {
 
   @Column({ type: 'simple-json', nullable: false, transformer: [azureEncrypt]})
   azureAuthOptions: AzureAuthOptions = {}
+
+  @Column({ type: 'simple-json', nullable: false, transformer: [azureEncrypt]})
+  iamAuthOptions: IamAuthOptions = {}
 
   @Column({ type: 'integer', nullable: true})
   authId: Nullable<number> = null
