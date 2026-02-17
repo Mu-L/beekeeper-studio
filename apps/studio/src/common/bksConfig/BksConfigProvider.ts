@@ -1,6 +1,7 @@
 import rawLog from "@bksLogger";
 import _ from "lodash";
 import type { IPlatformInfo } from "../IPlatformInfo";
+import type { Platform } from "@/types";
 
 export interface BksConfigSource {
   defaultConfig: IBksConfig;
@@ -83,12 +84,12 @@ const electronModifierMap = {
 const vHotkeyModifierMap: ModifierMap = {
   CTRL: "ctrl",
   CMD: "cmd",
-  CTRLORCMD: (isMac) => (isMac ? "meta" : "ctrl"),
-  CMDORCTRL: (isMac) => (isMac ? "meta" : "ctrl"),
+  CTRLORCMD: "ctrlOrCmd",
+  CMDORCTRL: "ctrlOrCmd",
   CONTROL: "ctrl",
   COMMAND: "cmd",
-  CONTROLORCOMMAND: (isMac) => (isMac ? "meta" : "ctrl"),
-  COMMANDORCONTROL: (isMac) => (isMac ? "meta" : "ctrl"),
+  CONTROLORCOMMAND: "ctrlOrCmd",
+  COMMANDORCONTROL: "ctrlOrCmd",
   SHIFT: "shift",
   ALT: "alt",
   OPTION: "option",
@@ -120,17 +121,17 @@ const uiModifierMap: ModifierMap = {
 export function convertKeybinding(
   target: "electron" | "v-hotkey" | "codemirror",
   keybinding: string,
-  platform: "windows" | "mac" | "linux"
+  platform: Platform
 ): string;
 export function convertKeybinding(
   target: "ui",
   keybinding: string,
-  platform: "windows" | "mac" | "linux"
+  platform: Platform
 ): string[];
 export function convertKeybinding(
   target: "electron" | "v-hotkey" | "codemirror" | "ui",
   keybinding: string,
-  platform: "windows" | "mac" | "linux"
+  platform: Platform
 ): string[] | string {
 
   let modifierMap: ModifierMap;
@@ -167,6 +168,9 @@ export function convertKeybinding(
 
     if (target === "v-hotkey") {
       mod = mod.toLowerCase();
+      if (mod === "ctrlorcmd") {
+        mod = platform === "mac" ? "meta" : "ctrl";
+      }
     }
 
     if (target === "codemirror" && !modifierMap[key]) {

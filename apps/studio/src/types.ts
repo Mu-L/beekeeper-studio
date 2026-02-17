@@ -29,6 +29,10 @@ export type ExternalMenuItem<TabContext = {}> = {
   action: CustomMenuAction<TabContext>;
 };
 
+export type Platform = "windows" | "mac" | "linux";
+
+export type KeybindingTarget = "electron" | "v-hotkey" | "codemirror" | "ui";
+
 export type FileHelpers = {
   save: (options: SaveFileOptions) => Promise<void>;
 }
