@@ -45,6 +45,7 @@ export default class extends DefaultMenu {
       id: "help",
       label: "Help",
       submenu: [
+        this.menuItems.keyboardShortcuts,
         this.menuItems.enterLicense,
         this.menuItems.checkForUpdate,
         this.menuItems.opendocs,

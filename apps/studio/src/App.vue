@@ -36,6 +36,7 @@
     <import-connections-modal />
     <plugin-controller />
     <plugin-manager-modal />
+    <keyboard-shortcuts-modal />
     <confirmation-modal-manager />
     <lock-manager />
     <util-died-modal />
@@ -79,6 +80,7 @@ import LifetimeLicenseExpiredModal from '@/components/license/LifetimeLicenseExp
 import type { LicenseStatus } from "@/lib/license";
 import { SmartLocalStorage } from '@/common/LocalStorage';
 import PluginManagerModal from '@/components/plugins/PluginManagerModal.vue'
+import KeyboardShortcutsModal from '@/components/common/modals/KeyboardShortcutsModal.vue'
 import PluginController from '@/components/plugins/PluginController.vue'
 import LockManager from "@/components/managers/LockManager.vue";
 
@@ -96,7 +98,7 @@ export default Vue.extend({
     UtilDiedModal, WorkspaceSignInModal, ImportQueriesModal, ImportConnectionsModal,
     EnterLicenseModal, TrialExpiredModal, LicenseExpiredModal,
     LifetimeLicenseExpiredModal, WorkspaceCreateModal, WorkspaceRenameModal,
-    PluginManagerModal, ConfigurationWarningModal, PluginController, LockManager,
+    PluginManagerModal, ConfigurationWarningModal, PluginController, LockManager, KeyboardShortcutsModal,
   },
   data() {
     return {
