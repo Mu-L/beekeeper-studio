@@ -12,7 +12,6 @@ import pluralize from 'pluralize';
 import type { SaveFileOptions } from '@/backend/lib/FileHelpers';
 import type { NativePluginMenuItem } from '@/services/plugin/types';
 
-
 const electron = require('@electron/remote');
 
 const testMode = process.env.TEST_MODE ? true : false;

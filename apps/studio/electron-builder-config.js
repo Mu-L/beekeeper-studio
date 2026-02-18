@@ -35,6 +35,14 @@ module.exports = {
   ],
   extraResources: [
     {
+      from: "node_modules/@beekeeperstudio/bks-ai-shell",
+      to: "bundled_plugins/@beekeeperstudio/bks-ai-shell"
+    },
+    {
+      from: "node_modules/@beekeeperstudio/bks-er-diagram",
+      to: "bundled_plugins/@beekeeperstudio/bks-er-diagram"
+    },
+    {
       from: './extra_resources/demo.db',
       to: 'demo.db'
     },
@@ -154,7 +162,9 @@ module.exports = {
       'pacman'
     ],
     desktop: {
-      'StartupWMClass': 'beekeeper-studio'
+      entry: {
+        'StartupWMClass': 'beekeeper-studio',
+      }
     },
     publish: ['github']
   },
@@ -205,13 +215,16 @@ module.exports = {
     // FIXME: Add AppX/MSIX build back in once certificate issues resolved
     target: ['nsis', 'portable'],
     publish: ['github'],
-    sign: "./build/win/sign.js",
+    signtoolOptions: {
+      sign: "./build/win/sign.js",
+    },
   },
   portable: {
     "artifactName": "${productName}-${version}-portable.exe",
   },
   nsis: {
-    oneClick: false
+    oneClick: false,
+    include: './build/win/msvc-redist.nsh'
   },
   appx: {
     applicationId: "beekeeperstudio",
