@@ -290,6 +290,7 @@ declare interface IBksConfig {
     };
     general: {
         checkForUpdatesInterval: number;
+        checkForUpdatesDisabled: boolean;
         dataSyncInterval: number;
         workspaceSyncInterval: number;
     };
