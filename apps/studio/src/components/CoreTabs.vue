@@ -1097,7 +1097,7 @@ export default Vue.extend({
         case 'restore':
           break;
         case 'query':
-          return void this.close(tab, { ignoreUnsavedChanges: true });
+          return this.close(tab, { ignoreUnsavedChanges: true });
         default:
           console.log('No force close behaviour defined for tab type')
       }
