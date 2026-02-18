@@ -34,10 +34,6 @@ function shouldSkipUpdater() {
 }
 
 function checkForUpdates() {
-  if (BksConfig.general.checkForUpdatesDisabled) {
-    log.info('update checks are disabled, skipping')
-    return
-  }
   log.info('checking for updates right now')
   try {
     autoUpdater.checkForUpdates()
