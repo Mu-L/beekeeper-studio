@@ -1,6 +1,10 @@
+<!-- Target languages: ["en", "pt-BR", "es", "de", "fr", "el", "ja", "it", "ko", "id"] -->
+🌐 [ES](README-es.md) | [PT-BR](README.pt-br.md) | [DE](README-de.md) | [FR](README-fr.md) | [EL](README-el.md) | [JA](README-ja.md) | [IT](README-it.md) | [KO](README-ko.md) | [ID](README-id.md)
+
 # Beekeeper Studio
 
 Beekeeper Studio is a cross-platform SQL editor and database manager available for Linux, Mac, and Windows.
+
 
 [Download Beekeeper Studio](https://beekeeperstudio.io/get-community)
 

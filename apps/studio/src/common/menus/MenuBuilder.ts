@@ -14,7 +14,9 @@ export default class extends DefaultMenu {
       submenu: [
         this.menuItems.zoomreset,
         this.menuItems.zoomin,
+        this.menuItems.zoominNumpad,
         this.menuItems.zoomout,
+        this.menuItems.zoomoutNumpad,
         { type: 'separator' },
         this.menuItems.editorFontSizeReset,
         this.menuItems.editorFontSizeIncrease,
@@ -48,6 +50,7 @@ export default class extends DefaultMenu {
       id: "help",
       label: "Help",
       submenu: [
+        this.menuItems.keyboardShortcuts,
         this.menuItems.enterLicense,
         this.menuItems.checkForUpdate,
         this.menuItems.opendocs,

@@ -31,6 +31,8 @@ export default class {
     this.forward(AppEvent.updatePin)
     this.forward(AppEvent.settingsChanged)
     this.forward(AppEvent.openPluginManager)
+    this.forward(AppEvent.openKeyboardShortcuts)
+    this.forward(AppEvent.pluginMenuClicked)
   }
 
   forward(event) {
@@ -46,7 +48,7 @@ export default class {
   }
 
   async addBeekeeper() {
-    const existing = await this.vueApp.$util.send('appdb/saved/findOne', { options: { defaultDatabase: platformInfo.appDbPath }});
+    const existing = await this.vueApp.$util.send('appdb/saved/findOneBy', { options: { defaultDatabase: platformInfo.appDbPath }});
     if (!existing) {
       const nu = {};
       nu.connectionType = 'sqlite'

@@ -73,11 +73,25 @@ export function menuItems(actionHandler: IMenuActionHandler, settings: IGroupedU
       accelerator: 'CommandOrControl+=',
       click: actionHandler.zoomin
     },
+    zoominNumpad: {
+      id: 'zoom-in-numpad',
+      label: "Zoom In (numpad)",
+      accelerator: 'CommandOrControl+numadd',
+      click: actionHandler.zoomin,
+      visible: false,
+    },
     zoomout: {
       id: 'zoom-out',
       label: "Zoom Out",
       accelerator: "CommandOrControl+-",
       click: actionHandler.zoomout
+    },
+    zoomoutNumpad: {
+      id: 'zoom-out-numpad',
+      label: "Zoom Out (numpad)",
+      accelerator: "CommandOrControl+numsub",
+      click: actionHandler.zoomout,
+      visible: false,
     },
     editorFontSizeReset: {
       id: 'editor-font-size-reset',
@@ -168,7 +182,7 @@ export function menuItems(actionHandler: IMenuActionHandler, settings: IGroupedU
     },
     importSqlFiles: {
       id: 'import-sql-files',
-      label: "Import SQL Files",
+      label: "Import Saved Queries",
       accelerator: "CommandOrControl+I",
       click: actionHandler.importSqlFiles,
       showWhenConnected: true,
@@ -200,7 +214,7 @@ export function menuItems(actionHandler: IMenuActionHandler, settings: IGroupedU
       id: 'menu-secondary-sidebar',
       label: 'Toggle Secondary Sidebar',
       // accelerator: "Alt+S",
-      click: actionHandler.toggleSecondarySidebar,  
+      click: actionHandler.toggleSecondarySidebar,
       enabled: false,
     },
     themeToggle: {
@@ -326,6 +340,11 @@ export function menuItems(actionHandler: IMenuActionHandler, settings: IGroupedU
       id: 'manage-plugins',
       label: 'Manage Plugins',
       click: actionHandler.managePlugins,
+    },
+    keyboardShortcuts: {
+      id: 'keyboard-shortcuts',
+      label: 'Keyboard Shortcuts',
+      click: actionHandler.keyboardShortcuts,
     },
   }
 }
