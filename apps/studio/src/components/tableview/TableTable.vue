@@ -2073,12 +2073,6 @@ export default Vue.extend({
       }
       this.selectedRow?.getCell(key).setValue(value)
     },
-    undo() {
-      this.tabulator?.undo();
-    },
-    redo() {
-      this.tabulator?.redo();
-    },
     debouncedSaveTab: _.debounce(function(tab) {
       this.$store.dispatch('tabs/save', tab)
     }, 300),
