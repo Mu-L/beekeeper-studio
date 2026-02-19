@@ -38,13 +38,10 @@ export default Vue.extend({
     command: String,
     params: null as PropType<LoadViewParams>,
     onRequest: Function,
-    reload: null,
   },
   data() {
     return {
       loaded: false,
-      // Use a timestamp parameter to force iframe refresh
-      timestamp: Date.now(),
       unsubscribe: null,
       unsubscribeOnReady: null,
       unsubscribeOnDispose: null,
@@ -66,9 +63,6 @@ export default Vue.extend({
     },
   },
   watch: {
-    reload() {
-      this.timestamp = Date.now();
-    },
     shouldMountIframe: {
       async handler() {
         await this.$nextTick();

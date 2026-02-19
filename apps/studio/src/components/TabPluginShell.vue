@@ -37,7 +37,6 @@
         :visible="active"
         :plugin-id="tab.context.pluginId"
         :view-id="tab.context.pluginTabTypeId"
-        :reload="reload"
         :on-request="handleRequest"
         :command="tab.context.command"
         :params="tab.context.params"
@@ -138,7 +137,6 @@ export default Vue.extend({
       required: true,
     },
     active: Boolean,
-    reload: null,
   },
   data() {
     return {
