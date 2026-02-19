@@ -3,6 +3,7 @@
     <div
       class="beekeeper-studio-wrapper"
       :class="{ 'beekeeper-studio-minimal-mode': $store.getters.minimalMode }"
+      :style="{ '--bks-text-editor-font-size': `${editorFontSize}px` }"
     >
       <titlebar />
       <template v-if="storeInitialized">
@@ -122,7 +123,10 @@ export default Vue.extend({
       'isTrial': 'isTrial',
       'isUltimate': 'isUltimate',
       'themeValue': 'settings/themeValue',
-    })
+    }),
+    editorFontSize() {
+      return this.$store.state.settings?.settings?.editorFontSize?.value || 14
+    }
   },
   watch: {
     database() {
