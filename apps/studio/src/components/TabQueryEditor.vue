@@ -1352,7 +1352,6 @@
           results.forEach((result, idx) => {
             result.rowCount = result.rowCount || 0
 
-            // TODO (matthew): remove truncation logic somewhere sensible
             totalRows += result.totalRowCount
             const identifiedTables = identification[idx]?.tables || []
             if (identifiedTables.length > 0) {
