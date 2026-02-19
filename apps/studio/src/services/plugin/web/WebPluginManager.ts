@@ -192,6 +192,7 @@ export default class WebPluginManager {
     if (!loader) {
       throw new Error("Plugin not found: " + pluginId);
     }
+    // TODO (azmi): later, we don't need to convert the manifest when plugin snapshot is added
     const view = convertToManifestV1(loader.manifest).capabilities.views.find(
       (v) => v.id === viewId
     );
