@@ -1,7 +1,7 @@
 import rawLog from "@bksLogger";
 import _ from "lodash";
 import type { IPlatformInfo } from "../IPlatformInfo";
-import { KeybindingTarget } from "./types";
+import type { KeybindingTarget, Platform } from "@/types";
 
 export interface BksConfigSource {
   defaultConfig: IBksConfig;
@@ -25,9 +25,11 @@ export interface ConfigEntryDetailWarning {
 
 type IniValue = string | number | boolean | IniArray | undefined;
 
-type ConfigValue = IniValue | Record<string, IniValue>;
+export type ConfigValue = IniValue | Record<string, IniValue>;
 
 export type KeybindingPath = DeepKeyOf<IBksConfig["keybindings"]>;
+
+type ModifierMap = Record<string, string | ((isMac: boolean) => string)>;
 
 interface IBksConfigDebugInfo {
   path: string;
@@ -79,7 +81,7 @@ const electronModifierMap = {
   WINDOWS: "Meta",
 } as const;
 
-const vHotkeyModifierMap = {
+const vHotkeyModifierMap: ModifierMap = {
   CTRL: "ctrl",
   CMD: "cmd",
   CTRLORCMD: "ctrlOrCmd",
@@ -115,13 +117,42 @@ export const tabulatorModifierMap = {
   WINDOWS: "91",
 } as const;
 
+const uiModifierMap: ModifierMap = {
+  CTRL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CMD: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CTRLORCMD: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CMDORCTRL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CONTROL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  COMMAND: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  CONTROLORCOMMAND: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  COMMANDORCONTROL: (isMac) => (isMac ? "⌘" : "Ctrl"),
+  SHIFT: (isMac) => (isMac ? "⇧" : "Shift"),
+  ALT: (isMac) => (isMac ? "⌥" : "Alt"),
+  OPTION: (isMac) => (isMac ? "⌥" : "Alt"),
+  ALTGR: "AltGr",
+  SUPER: (isMac) => (isMac ? "⌘" : "Super"),
+  META: (isMac) => (isMac ? "^" : "Meta"),
+  PAGEUP: "PageUp",
+  PAGEDOWN: "PageDown",
+};
+
 export function convertKeybinding(
   target: KeybindingTarget,
   keybinding: string,
-  platform: "windows" | "mac" | "linux"
-) {
+  platform: Platform
+): string;
+export function convertKeybinding(
+  target: "ui",
+  keybinding: string,
+  platform: Platform
+): string[];
+export function convertKeybinding(
+  target: "electron" | "v-hotkey" | "codemirror" | "ui",
+  keybinding: string,
+  platform: Platform
+): string[] | string {
 
-  let modifierMap;
+  let modifierMap: ModifierMap;
   let joinChar = '+'
 
   switch (target) {
@@ -138,6 +169,8 @@ export function convertKeybinding(
     case "tabulator":
       modifierMap = tabulatorModifierMap;
       joinChar = ' + ';
+    case "ui":
+      modifierMap = uiModifierMap;
       break;
     default:
       log.error("Unrecognized target for keybinding conversion: ", target)
@@ -148,7 +181,11 @@ export function convertKeybinding(
   for (const _key of keybinding.split("+")) {
     const key = _key.toUpperCase().trim();
 
-    let mod: string = modifierMap[key] ?? key;
+    let mod = modifierMap[key] ?? key;
+
+    if (typeof mod === "function") {
+      mod = mod(platform === "mac");
+    }
 
     if (target === "v-hotkey") {
       mod = mod.toLowerCase();
@@ -164,8 +201,16 @@ export function convertKeybinding(
     if (target === "tabulator" && !modifierMap[key]) {
       mod = mod.toLowerCase();
     }
+    
+    if (target === "ui" && !modifierMap[key]) {
+      mod = _.upperFirst(mod.toLowerCase());
+    }
 
     combination.push(mod);
+  }
+
+  if (target === "ui") {
+    return combination;
   }
 
   return combination.join(joinChar);
