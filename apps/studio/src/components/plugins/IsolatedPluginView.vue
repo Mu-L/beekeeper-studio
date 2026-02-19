@@ -82,7 +82,9 @@ export default Vue.extend({
       async handler() {
         await this.$nextTick();
         if (this.shouldMountIframe) {
-          this.mountIframe();
+          this.mountIframe().catch((e) => {
+            this.error = e instanceof Error ? e.message : String(e);
+          });
         } else {
           this.unmountIframe();
         }
@@ -176,7 +178,7 @@ export default Vue.extend({
         await this.mountIframe();
       } catch (e) {
         log.error(e);
-        this.error = e.message;
+        this.error = e instanceof Error ? e.message : String(e);
       }
     },
   },
