@@ -3,6 +3,7 @@
     <div
       class="beekeeper-studio-wrapper"
       :class="{ 'beekeeper-studio-minimal-mode': $store.getters.minimalMode }"
+      :style="{ '--bks-text-editor-font-size': `${editorFontSize}px` }"
     >
       <titlebar />
       <template v-if="storeInitialized">
@@ -135,9 +136,6 @@ export default Vue.extend({
       document.body.className = `theme-${this.themeValue}`
       this.trigger(AppEvent.changedTheme, this.themeValue)
     },
-    editorFontSize(newSize) {
-      document.documentElement.style.setProperty('--bks-editor-font-size', `${newSize}px`)
-    },
     status(curr, prev) {
       this.$store.dispatch('updateWindowTitle')
       this.validateLicenseExpiry(curr, prev)
@@ -173,9 +171,6 @@ export default Vue.extend({
     })
     if (this.themeValue) {
       document.body.className = `theme-${this.themeValue}`
-    }
-    if (this.editorFontSize) {
-      document.documentElement.style.setProperty('--bks-editor-font-size', `${this.editorFontSize}px`)
     }
 
     if (this.url) {
