@@ -215,14 +215,14 @@ export default {
         try {
           const result = await this.$util.send('backup/whichDumpTool', {toolName: "az"});
           if (result) {
-            this.config.azureAuthOptions.cliPath = result;
+            this.$set(this.config.azureAuthOptions, 'cliPath', result);
             this.cliError = false;
           } else {
-            this.config.azureAuthOptions.cliPath = null;
+            this.$set(this.config.azureAuthOptions, 'cliPath', null);
             this.cliError = true;
           }
         } catch (e) {
-          this.config.azureAuthOptions.cliPath = null;
+          this.$set(this.config.azureAuthOptions, 'cliPath', null);
           this.cliError = true;
         }
       }
