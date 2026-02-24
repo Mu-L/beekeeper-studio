@@ -282,7 +282,6 @@ export default Vue.extend({
         pinned = !item.pinned;
       }
       item.pinned = pinned;
-      this.generateDisplayItems();
     },
     handleScrollEnd() {
       this.updateTableColumnsInRange(true);
@@ -321,10 +320,6 @@ export default Vue.extend({
   },
   watch: {
     schemaTables() {
-      this.generateItems();
-      this.generateDisplayItems();
-    },
-    pins() {
       this.generateItems();
       this.generateDisplayItems();
     },
