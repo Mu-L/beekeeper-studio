@@ -6,7 +6,7 @@ import {TokenCache} from '@/common/appdb/models/token_cache';
 import globals from '@/common/globals';
 import {AzureAuthOptions, AzureAuthType} from '../types';
 import {spawn} from 'child_process'
-import {getEntraOptions} from "@/lib/db/clients/utils";
+import {getEntraOptions, sanitizeCommandPath} from "@/lib/db/clients/utils";
 import {IDbConnectionServer} from "@/lib/db/backendTypes";
 import BksConfig from '@/common/bksConfig';
 
@@ -178,7 +178,7 @@ export class AzureAuthService {
     }
 
     return new Promise<AuthConfig>((resolve, reject) => {
-      const proc = spawn(options.cliPath, [
+      const proc = spawn(sanitizeCommandPath(options.cliPath), [
         'account',
         'get-access-token',
         '--resource',
