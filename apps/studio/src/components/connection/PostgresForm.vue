@@ -52,7 +52,6 @@ export default {
       iamAuthenticationEnabled: !!this.config.iamAuthOptions?.iamAuthenticationEnabled,
       authType: this.config.iamAuthOptions?.authType || this.config.azureAuthOptions?.azureAuthType || 'default',
       authTypes: [{ name: 'Username / Password', value: 'default' }, ...IamAuthTypes, ...AzureAuthTypes.filter(auth => auth.value === AzureAuthType.CLI)],
-      accountName: null,
       signingOut: false,
       errorSigningOut: null,
       showPasswordForm: true
@@ -87,13 +86,6 @@ export default {
             this.config.azureAuthOptions.azureAuthType = this.authType;
           }
         }
-      }
-
-      const authId = this.config.azureAuthOptions?.authId || this.config?.authId
-      if (this.authType === AzureAuthType.AccessToken && !_.isNil(authId)) {
-        this.accountName = await this.connection.azureGetAccountName(authId);
-      } else {
-        this.accountName = null
       }
     },
     config() {

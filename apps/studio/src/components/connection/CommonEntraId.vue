@@ -23,12 +23,7 @@
           Azure CLI Path (az)
           </label
         >
-        <input
-          name="cliPath"
-          type="text"
-          class="form-control"
-          v-model="config.azureAuthOptions.cliPath"
-        />
+        <file-picker v-model="config.azureAuthOptions.cliPath"/>
         <div class="alert alert-danger" v-show="!cliFound">
           <i class="material-icons-outlined">warning</i>
           <div>
@@ -49,7 +44,7 @@
             style="padding-left: 0.25rem"
             v-tooltip="{
               content:
-                'This is the <code>\'Server name\'</code> field on your Sql Server in Azure, <br/> you might also think of this as the hostname. <br/> Eg. <code>example.database.windows.net</code>',
+                'This is the <code>\'Server name\'</code> field on your database in Azure, <br/> you might also think of this as the hostname. <br/> Eg. <code>example.database.windows.net</code>',
               html: true,
             }"
             >help_outlined</i
@@ -147,6 +142,7 @@ import _ from "lodash";
 import MaskedInput from '@/components/MaskedInput.vue'
 import CommonSsl from './CommonSsl.vue'
 import { mapState } from 'vuex'
+import FilePicker from '@/components/common/form/FilePicker.vue'
 
 export default {
   props: {
@@ -161,6 +157,7 @@ export default {
   components: {
     MaskedInput,
     CommonSsl,
+    FilePicker
   },
   data() {
     return {

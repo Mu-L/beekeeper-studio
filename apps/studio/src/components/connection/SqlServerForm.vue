@@ -76,7 +76,6 @@
         azureAuthEnabled: false,
         authType: 'default',
         authTypes: AzureAuthTypes,
-        accountName: null
       }
     },
     watch: {
