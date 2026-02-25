@@ -21,8 +21,8 @@
       <input type="text" class="form-control" v-model="config.options.cluster">
     </div>
     <common-iam v-show="iamAuthenticationEnabled" :auth-type="authType" :config="config" />
-    <common-advanced :config="config" />
     <common-entra-id v-show="azureAuthEnabled" :auth-type="authType" :config="config" />
+    <common-advanced :config="config" />
   </div>
 </template>
 
