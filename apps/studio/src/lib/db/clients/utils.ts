@@ -461,7 +461,7 @@ export async function getAWSCLIToken(server: IDbConnectionServerConfig, options:
       '--username',
       server.user,
       ...extraArgs
-    ]);
+    ], { shell: true });
 
     let stdout = '';
     let stderr = '';

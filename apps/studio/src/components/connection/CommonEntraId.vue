@@ -85,6 +85,15 @@
           </button>
         </div>
       </div>
+      <div class="form-group" v-show="showUser">
+        <label for="user">User</label>
+        <input
+          name="user"
+          type="text"
+          class="form-control"
+          v-model="config.username"
+        >
+      </div>
       <div class="form-group" v-show="isServicePrincipal">
         <label for="tenantId">
           Tenant ID

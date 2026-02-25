@@ -185,7 +185,7 @@ export class AzureAuthService {
         BksConfig.azure.azSQLLoginScope,
         '--output',
         'json'
-      ]);
+      ], { shell: true });
 
       let stdout = '';
       let stderr = '';
