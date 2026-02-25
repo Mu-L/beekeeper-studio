@@ -98,15 +98,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import FilePicker from '@/components/common/form/FilePicker.vue'
 import ExternalLink from '@/components/common/ExternalLink.vue'
 import ToggleFormArea from '../common/ToggleFormArea.vue'
 import { findClient } from '@/lib/db/clients'
+import { PropType } from 'vue'
+import { IConnection } from '@/common/interfaces/IConnection'
 
 export default {
   props: {
-    config: Object,
+    config: Object as PropType<IConnection>,
     sslHelp: String,
     supportComplexSSL: {
       type: Boolean,
