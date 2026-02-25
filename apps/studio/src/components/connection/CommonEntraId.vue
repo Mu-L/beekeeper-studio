@@ -132,6 +132,11 @@
         <label for="msiEndpoint">MSI Endpoint</label>
         <masked-input :value="config.azureAuthOptions.msiEndpoint" :privacy-mode="privacyMode" @input="val => config.azureAuthOptions.msiEndpoint = val" />
       </div>
+      <common-ssl
+        :config="config"
+        :ssl-help="sslHelp"
+        :support-complex-s-s-l="supportComplexSSL"
+      />
     </div>
   </div>
 </template>
@@ -140,12 +145,22 @@ import { AzureAuthType } from "@/lib/db/types";
 import { AppEvent } from "@/common/AppEvent";
 import _ from "lodash";
 import MaskedInput from '@/components/MaskedInput.vue'
+import CommonSsl from './CommonSsl.vue'
 import { mapState } from 'vuex'
 
 export default {
-  props: ["config", "authType"],
+  props: {
+    config: Object,
+    authType: [String, Number],
+    sslHelp: String,
+    supportComplexSSL: {
+      type: Boolean,
+      default: true
+    }
+  },
   components: {
     MaskedInput,
+    CommonSsl,
   },
   data() {
     return {
