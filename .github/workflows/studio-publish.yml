@@ -1,5 +1,9 @@
 name: Studio - Build & Publish
 
+permissions:
+  content: read
+  actions: write
+
 on:
   push:
     tags:

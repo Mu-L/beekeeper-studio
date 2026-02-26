@@ -1,5 +1,8 @@
 name: UI Kit - Build & Publish
 
+permissions:
+  contents: read
+
 on:
   push:
     tags:
