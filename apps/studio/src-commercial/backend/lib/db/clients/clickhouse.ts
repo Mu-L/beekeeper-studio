@@ -120,7 +120,7 @@ const clickhouseContext = {
 const knex = knexlib({ client: ClickhouseKnexClient });
 
 const RE_NULLABLE = /^Nullable\((.*)\)$/;
-const RE_SELECT_FORMAT = /^\s*SELECT[\s\S]*FORMAT\s+(\w+)\s*;?$/i;
+const RE_SELECT_FORMAT = /^\s*SELECT.+FORMAT\s+(\w+)\s*;?$/is;
 
 export class ClickHouseClient extends BasicDatabaseClient<Result> {
   version: string;
