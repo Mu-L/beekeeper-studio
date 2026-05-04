@@ -396,10 +396,6 @@ export default Vue.extend({
       selectedRowPosition: -1,
       selectedRowData: {},
       expandablePaths: [],
-
-      // Tabulator persistence cache (keyed by persistence type, e.g. "columns").
-      // Populated by loadPersistence() and read synchronously by persistenceReader.
-      persistenceCache: new Map(),
     };
   },
   computed: {
@@ -736,6 +732,11 @@ export default Vue.extend({
     }
     this.unregisterHandlers(this.rootBindings)
   },
+  created() {
+    // Tabulator persistence cache (keyed by persistence type, e.g. "columns").
+    // Populated by loadPersistence() and read synchronously by persistenceReader.
+    this.persistenceCache = new Map();
+  },
   async mounted() {
     if (this.shouldInitialize) {
       await this.$nextTick(async() => {
@@ -749,7 +750,10 @@ export default Vue.extend({
   },
   methods: {
     async loadPersistence() {
-      if (!this.tableId) return;
+      if (!this.tableId) {
+        return;
+      }
+
       try {
         const rows: TransportTabulatorPersistence[] = await this.$util.send(
           "appdb/tabulatorPersistence/find",
@@ -765,12 +769,24 @@ export default Vue.extend({
         this.persistenceCache = new Map();
       }
     },
-    persistenceReader(_id: string, type: string) {
+    persistenceReader(id: string, type: string) {
       const row = this.persistenceCache.get(type);
-      if (!row) return false;
+      if (row) {
+        try {
+          return JSON.parse(row.data);
+        } catch (e) {
+          log.error(e);
+          return false;
+        }
+      }
+      // Fall back to Tabulator's old localStorage location #4160
       try {
-        return JSON.parse(row.data);
-      } catch {
+        // This is the id that tabulator uses for persistence
+        const itemId = `${id}-${type}`
+        const raw = localStorage.getItem(itemId);
+        return raw ? JSON.parse(raw) : false;
+      } catch (e) {
+        log.error(e);
         return false;
       }
     },
