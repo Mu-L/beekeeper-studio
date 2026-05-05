@@ -396,6 +396,10 @@ export default Vue.extend({
       selectedRowPosition: -1,
       selectedRowData: {},
       expandablePaths: [],
+
+      // App.db row holding tabulator's column persistence.
+      // Loaded by loadPersistence() and read synchronously by persistenceReader.
+      persistenceRow: null as { id?: number; data: string } | null,
     };
   },
   computed: {
@@ -755,25 +759,20 @@ export default Vue.extend({
       }
 
       try {
-        const rows: TransportTabulatorPersistence[] = await this.$util.send(
-          "appdb/tabulatorPersistence/find",
-          { options: { where: { persistenceID: this.tableId } } }
+        const row: TransportTabulatorPersistence = await this.$util.send(
+          "appdb/tabulatorPersistence/findOneBy",
+          { persistenceID: this.tableId, type: "columns" }
         );
-        const cache = new Map<string, { id?: number; data: string }>();
-        for (const r of rows ?? []) {
-          cache.set(r.type, { id: r.id ?? undefined, data: r.data });
-        }
-        this.persistenceCache = cache;
+        this.persistenceRow = row ? { id: row.id, data: row.data } : null;
       } catch (e) {
         log.warn("tabulator persistence load failed", e);
-        this.persistenceCache = new Map();
+        this.persistenceRow = null;
       }
     },
     persistenceReader(id: string, type: string) {
-      const row = this.persistenceCache.get(type);
-      if (row) {
+      if (this.persistenceRow) {
         try {
-          return JSON.parse(row.data);
+          return JSON.parse(this.persistenceRow.data);
         } catch (e) {
           log.error(e);
           return false;
@@ -790,24 +789,31 @@ export default Vue.extend({
         return false;
       }
     },
-    persistenceWriter(id: string, type: string, data: unknown) {
-      const existing = this.persistenceCache.get(type);
+    persistenceWriter(_id: string, type: string, data: unknown) {
+      if (!this.tableId) {
+        return;
+      }
+
       const serialized = JSON.stringify(data);
-      const row = { id: existing?.id, data: serialized };
-      this.persistenceCache.set(type, row);
+      const existingId = this.persistenceRow?.id;
+      this.persistenceRow = { id: existingId, data: serialized };
       this.$util
         .send("appdb/tabulatorPersistence/save", {
-          obj: { id: row.id, persistenceID: id, type, data: serialized },
+          obj: {
+            id: existingId,
+            persistenceID: this.tableId,
+            type,
+            data: serialized,
+          },
         })
         .then((saved: TransportTabulatorPersistence) => {
-          if (saved?.id != null) {
-            const current = this.persistenceCache.get(type);
-            if (current && current.id == null) current.id = saved.id;
+          if (saved) {
+            this.persistenceRow.id = saved.id;
           }
         })
-        .catch((e: unknown) => {
-          log.warn("tabulator persistence save failed", e);
-        });
+        .catch(
+          (e: unknown) => log.warn("tabulator persistence save failed", e)
+        );
     },
     createColumnFromProps(column) {
       // 1. add a column for a real column
