@@ -1,4 +1,9 @@
-import { DriverDepProvider, DriverDepProviderInfo, DriverDepArtifact } from "../types";
+import {
+  DriverDepProvider,
+  DriverDepProviderInfo,
+  DriverDepArtifact,
+  DriverRequirement,
+} from "../types";
 
 /**
  * URLs sourced from Oracle's public CDN.
@@ -31,11 +36,18 @@ const ARTIFACTS: DriverDepArtifact[] = [
 export const ORACLE_INSTANT_CLIENT_REQUIREMENT_ID = "oracle-instant-client";
 
 export default class OracleInstantClientProvider implements DriverDepProvider {
-  readonly requirementId = ORACLE_INSTANT_CLIENT_REQUIREMENT_ID;
+  readonly requirement: DriverRequirement = {
+    id: ORACLE_INSTANT_CLIENT_REQUIREMENT_ID,
+    name: "Oracle Instant Client",
+    settingKey: "oracleInstantClient",
+    required: false,
+  };
+
+  readonly connectionTypes = ["oracle"];
 
   async resolve(): Promise<DriverDepProviderInfo> {
     return {
-      requirementId: this.requirementId,
+      requirementId: this.requirement.id,
       version: "21.17.0",
       artifacts: ARTIFACTS,
       licenseName: "Oracle Free Use Terms and Conditions",

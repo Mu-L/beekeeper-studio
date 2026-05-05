@@ -1,20 +1,14 @@
-import { DriverRequirement, DriverDepProvider, DepPlatform, DepArch } from "./types";
+import { DriverRequirement, DriverDepProvider } from "./types";
 
 export default class DriverDepRegistry {
   private requirements = new Map<string, DriverRequirement>();
   private providers = new Map<string, DriverDepProvider>();
   private connectionTypeMap = new Map<string, string[]>();
 
-  register(
-    requirement: DriverRequirement,
-    provider: DriverDepProvider,
-    connectionTypes: string[]
-  ): void {
-    if (requirement.id !== provider.requirementId) {
-      throw new Error(
-        `Requirement id "${requirement.id}" does not match provider requirementId "${provider.requirementId}"`
-      );
-    }
+  /** Register a self-describing provider. The provider supplies its own
+   *  requirement metadata and the connection types that should expose it. */
+  register(provider: DriverDepProvider): void {
+    const { requirement, connectionTypes } = provider;
     this.requirements.set(requirement.id, requirement);
     this.providers.set(requirement.id, provider);
 

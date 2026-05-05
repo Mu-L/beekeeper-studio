@@ -55,9 +55,16 @@ export interface DriverDepNote {
   text: string;
 }
 
-/** A provider that can supply files for a driver requirement */
+/** A provider that can supply files for a driver requirement.
+ *
+ * Providers are self-describing: each provider declares the requirement it
+ * fulfills and the connection types it applies to, so the registry only
+ * needs the provider itself. See docs/development/driver-dependencies.md. */
 export interface DriverDepProvider {
-  readonly requirementId: string;
+  /** The dependency this provider fulfills. */
+  readonly requirement: DriverRequirement;
+  /** Connection types (e.g. ["oracle"]) for which this dep should appear. */
+  readonly connectionTypes: string[];
   resolve(): Promise<DriverDepProviderInfo>;
 }
 
