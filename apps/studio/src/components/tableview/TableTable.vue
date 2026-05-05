@@ -736,11 +736,6 @@ export default Vue.extend({
     }
     this.unregisterHandlers(this.rootBindings)
   },
-  created() {
-    // Tabulator persistence cache (keyed by persistence type, e.g. "columns").
-    // Populated by loadPersistence() and read synchronously by persistenceReader.
-    this.persistenceCache = new Map();
-  },
   async mounted() {
     if (this.shouldInitialize) {
       await this.$nextTick(async() => {
