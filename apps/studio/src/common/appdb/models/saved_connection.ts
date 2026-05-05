@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsString } from "class-validator"
 import { Entity, Column, BeforeInsert, BeforeUpdate, ManyToOne, JoinColumn } from "typeorm"
 import { ApplicationEntity } from './application_entity'
 import { loadEncryptionKey } from '../../encryption_key'
@@ -16,6 +17,7 @@ const surrealEncrypt = new SurrealDbEncryptTransformer(loadEncryptionKey())
 
 export interface ConnectionOptions {
   cluster?: string
+  jwtAuthEnabled?: boolean
   connectionMethod?: 'manual' | 'connectionString'
   connectionString?: string
 }
@@ -95,6 +97,7 @@ export class DbConnectionBase extends ApplicationEntity {
         port = 1521
         break
       case 'cassandra':
+      case 'scylladb':
         port = 9042
         break
       case 'bigquery':
@@ -179,6 +182,18 @@ export class DbConnectionBase extends ApplicationEntity {
 
   @Column({ type: 'varchar', nullable: true })
   sshBastionHost: Nullable<string> = null
+
+  @Column({ type: 'int', nullable: true })
+  sshBastionHostPort: Nullable<number> = null
+
+  @Column({ type: 'varchar', length: 8, nullable: false, default: 'agent' })
+  sshBastionMode: SshMode = 'agent'
+
+  @Column({ type: 'varchar', nullable: true })
+  sshBastionUsername: Nullable<string> = null
+
+  @Column({ type: 'varchar', nullable: true })
+  sshBastionKeyfile: Nullable<string> = null
 
   @Column({ type: 'int', nullable: true })
   sshKeepaliveInterval: Nullable<number> = 60
@@ -266,6 +281,8 @@ export class SavedConnection extends DbConnectionBase implements IConnection {
     return this;
   }
 
+  @IsString({ message: 'Name is required' })
+  @IsNotEmpty({ message: 'Name is required' })
   @Column("varchar")
   name!: string
 
@@ -306,6 +323,12 @@ export class SavedConnection extends DbConnectionBase implements IConnection {
 
   @Column({ type: 'varchar', nullable: true, transformer: [encrypt] })
   sshPassword: Nullable<string> = null
+
+  @Column({ type: 'varchar', nullable: true, transformer: [encrypt] })
+  sshBastionPassword: Nullable<string> = null
+
+  @Column({ type: 'varchar', nullable: true, transformer: [encrypt] })
+  sshBastionKeyfilePassword: Nullable<string> = null
 
   _sshMode: SshMode = "agent"
 
@@ -385,13 +408,23 @@ export class SavedConnection extends DbConnectionBase implements IConnection {
         this.connectionType = 'redshift'
       }
 
-      if (parsed.hostname && parsed.hostname.includes('cockroachlabs.cloud')) {
+      const cockroachOptions = parsedUncoded.params?.options || ''
+      const hasCockroachJwtOption =
+        /--crdb:jwt_auth_enabled=true/.test(cockroachOptions) ||
+        /--crdb(?::|%3A)jwt_auth_enabled(?:=|%3D)true/i.test(url)
+      const hasCockroachClusterOption =
+        /--cluster=([A-Za-z0-9\-_]+)/.test(cockroachOptions) ||
+        /--cluster(?:=|%3D)[A-Za-z0-9\-_]+/i.test(url)
+      const hasCockroachProtocol =
+        ['cockroach', 'cockroachdb'].includes(parsed.protocol as string)
+
+      if ((parsed.hostname && parsed.hostname.includes('cockroachlabs.cloud')) || hasCockroachJwtOption || hasCockroachClusterOption || hasCockroachProtocol) {
         this.connectionType = 'cockroachdb'
-        if (parsedUncoded.params?.options) {
-          // TODO: fix this
-          const regex = /--cluster=([A-Za-z0-9\-_]+)/
-          const clusters = parsedUncoded.params.options.match(regex)
-          this.options['cluster'] = clusters ? clusters[1] : undefined
+        const clusterMatch = cockroachOptions.match(/--cluster=([A-Za-z0-9\-_]+)/)
+        this.options = {
+          ...this.options,
+          cluster: clusterMatch ? clusterMatch[1] : undefined,
+          jwtAuthEnabled: hasCockroachJwtOption,
         }
       }
 
@@ -434,6 +467,8 @@ export class SavedConnection extends DbConnectionBase implements IConnection {
       this.password = null
       this.sshPassword = null
       this.sshKeyfilePassword = null
+      this.sshBastionPassword = null
+      this.sshBastionKeyfilePassword = null
     }
   }
 

@@ -2,8 +2,22 @@
 declare interface IBksConfig {
     azure: {
         azSQLLoginScope: string;
+        ssoPrompt: string;
     };
     db: {
+        bedrock: {
+            allowSkipToLastPage: boolean;
+            autoRollbackWarningWindow: number;
+            manualTransactionTimeout: number;
+            maxConnections: number;
+            maxReservedConnections: number;
+            paramTypes: {
+                named: string[];
+                numbered: string[];
+                positional: boolean;
+                quoted: any[];
+            };
+        };
         bigquery: {
             allowSkipToLastPage: boolean;
             autoRollbackWarningWindow: number;
@@ -71,7 +85,6 @@ declare interface IBksConfig {
                 quoted: any[];
             };
         };
-        default_parsed: any;
         duckdb: {
             allowSkipToLastPage: boolean;
             autoRollbackWarningWindow: number;
@@ -223,6 +236,19 @@ declare interface IBksConfig {
                 quoted: any[];
             };
         };
+        scylladb: {
+            allowSkipToLastPage: boolean;
+            autoRollbackWarningWindow: number;
+            manualTransactionTimeout: number;
+            maxConnections: number;
+            maxReservedConnections: number;
+            paramTypes: {
+                named: any[];
+                numbered: any[];
+                positional: boolean;
+                quoted: any[];
+            };
+        };
         sqlanywhere: {
             allowSkipToLastPage: boolean;
             autoRollbackWarningWindow: number;
@@ -316,6 +342,7 @@ declare interface IBksConfig {
             cloneSelection: string;
             copySelection: string;
             deleteSelection: string;
+            jsonViewerSidebar: string;
             openInSqlEditor: string;
             openQuickSearch: string;
             pasteSelection: string;
@@ -330,13 +357,13 @@ declare interface IBksConfig {
             manualCommit: string;
             manualRollback: string;
             openTableFilter: string;
+            primaryQueryAction: string[];
+            primaryQueryToFileAction: string;
+            secondaryQueryAction: string[];
+            secondaryQueryToFileAction: string;
             selectEditor: string;
             selectNextResult: string;
             selectPreviousResult: string;
-            submitCurrentQuery: string[];
-            submitCurrentQueryToFile: string;
-            submitQueryToFile: string;
-            submitTabQuery: string[];
             switchPaneFocus: string;
         };
         quickSearch: {
@@ -348,6 +375,9 @@ declare interface IBksConfig {
             openInBackground: string;
             selectDown: string[];
             selectUp: string[];
+        };
+        resultTable: {
+            openEditorModal: string;
         };
         tab: {
             closeTab: string;
@@ -373,6 +403,11 @@ declare interface IBksConfig {
             openEditorModal: string;
             previousPage: string;
         };
+    };
+    pluginSystem: {
+        allow: string[];
+        communityDisabled: boolean;
+        disabled: boolean;
     };
     plugins: {
         "bks-ai-shell": {
@@ -406,6 +441,8 @@ declare interface IBksConfig {
         queryEditor: {
             defaultFormatter: string;
             maxResults: number;
+            primaryQueryAction: string;
+            secondaryQueryAction: string;
         };
         tableList: {
             itemHeight: number;

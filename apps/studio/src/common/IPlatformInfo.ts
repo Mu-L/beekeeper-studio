@@ -11,10 +11,13 @@ export interface IPlatformInfo {
   sessionType: string,
   isWayland: boolean,
   isSnap: string,
+  isFlatpak: boolean,
   isPortable: string,
   isDevelopment: boolean,
   isAppImage: boolean,
   sshAuthSock: string,
+  sshConfigExists: boolean,
+  defaultSshIdentityFile: string,
   environment: string,
   resourcesPath: string,
   env: {

@@ -24,7 +24,7 @@ import { DevHandlers } from '@/handlers/devHandlers';
 import { FormatterPresetHandlers } from '@/handlers/formatterPresetHandlers';
 import { LicenseHandlers } from '@/handlers/licenseHandlers';
 import { LockHandlers } from '@/handlers/lockHandlers';
-import { PluginHandlers } from '@/handlers/pluginHandlers';
+import { PluginHandlers } from '@commercial/backend/handlers/pluginHandlers';
 import { PluginManager } from '@/services/plugin';
 import PluginFileManager from '@/services/plugin/PluginFileManager';
 import { DriverDepHandlers } from '@/handlers/driverDepHandlers';
@@ -32,7 +32,11 @@ import { DriverDepManager, DriverDepFileManager, createDefaultRegistry } from '@
 import type { DepPlatform, DepArch } from '@/services/driverDeps';
 import BksConfig from '@/common/bksConfig';
 import _ from 'lodash';
-import { BundledPluginModule } from '@commercial/backend/plugin-system/modules/BundledPluginModule';
+import {
+  ConfigurationModule,
+  BundledPluginModule,
+} from '@commercial/backend/plugin-system/modules';
+import bksConfig from '@/common/bksConfig';
 
 import * as sms from 'source-map-support'
 
@@ -47,6 +51,7 @@ const pluginManager = new PluginManager({
     pluginsDirectory: platformInfo.pluginsDirectory,
   }),
 });
+pluginManager.registerModule(ConfigurationModule.with({ config: bksConfig }));
 pluginManager.registerModule(BundledPluginModule);
 
 const driverDepManager = new DriverDepManager({
