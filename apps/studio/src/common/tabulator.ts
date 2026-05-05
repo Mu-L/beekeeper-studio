@@ -106,6 +106,14 @@ export function tabulatorForTableData(
     },
   };
   const mergedOptions = _.merge(defaultOptions, tabulatorOptions);
+  if (tabulatorOptions.persistenceWriterFunc) {
+    mergedOptions.persistenceWriterFunc = (...args) => {
+      if (!persistenceReady) {
+        return;
+      }
+      tabulatorOptions.persistenceWriterFunc(...args);
+    }
+  }
   const tabulator = new TabulatorFull(el, mergedOptions);
 
   const onFirstLayout = () => {
