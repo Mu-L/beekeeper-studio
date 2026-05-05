@@ -947,9 +947,15 @@ export default Vue.extend({
       log.debug('tab pressed')
 
     },
+    isFocusingEditableElement() {
+      const el = document.activeElement
+      if (!el) return false
+      const tag = (el as HTMLElement).tagName.toLowerCase()
+      return tag === 'input' || tag === 'textarea' || (el as HTMLElement).getAttribute('contenteditable') === 'true'
+    },
     async navigatePage (dir: 'next' | 'prev' | 'first' | 'last') {
       const focusingTable = this.tabulator.element.contains(document.activeElement)
-      if (!focusingTable) {
+      if (!focusingTable && !this.isFocusingEditableElement()) {
         if (dir === 'next') {
           this.page++
         } else if (dir === 'prev') {
