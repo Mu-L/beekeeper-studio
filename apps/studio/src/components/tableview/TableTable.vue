@@ -323,7 +323,7 @@ import Statusbar from '../common/StatusBar.vue'
 import RowFilterBuilder from './RowFilterBuilder.vue'
 import ColumnFilterModal from './ColumnFilterModal.vue'
 import EditorModal from './EditorModal.vue'
-import LoadingSpinner from "@/common/loading/LoadingSpinner.vue"
+import LoadingSpinner from "@/components/common/loading/LoadingSpinner.vue"
 import rawLog from '@bksLogger'
 import _ from 'lodash'
 import TimeAgo from 'javascript-time-ago'
