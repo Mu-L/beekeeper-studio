@@ -5,11 +5,28 @@ summary: How to register an external file dependency that a database driver need
 
 # Adding a Driver Dependency
 
-Some database drivers depend on binary files we can't ship inside the app
-(e.g. Oracle Instant Client). The driver-deps framework auto-downloads
-those files on demand, shows the user a license + details modal, and
-writes the install path back into a user setting so the existing driver
-flow picks it up.
+Some database drivers depend on binary files that can't ship inside the
+app (e.g. Oracle Instant Client). The driver-deps framework
+auto-downloads those files on demand, shows the user a license + details
+modal, and writes the install path back into a user setting so the
+existing driver flow picks it up.
+
+## Mental model
+
+The integration is a single shared `UserSetting` key:
+
+- The **driver** reads a filesystem path from a user setting (e.g.
+  `oracleInstantClient`) at connect time.
+- A **provider** supplies the files for that same setting key —
+  downloads, extracts, and writes the resulting path back into the
+  setting.
+- The connection form binds a `SettingsInput` to the same key. That
+  binding is what surfaces the auto-download button next to the field.
+
+The `settingKey` is the only contract between provider and driver —
+nothing else is shared. If a driver already reads its path from a
+user setting, adding auto-download to it is purely additive: no
+driver-side or form changes are needed.
 
 This page explains how to register a new dependency. Adding one is
 intentionally small: write a provider class, then add one line to the
@@ -51,6 +68,10 @@ export default class MyDriverProvider implements DriverDepProvider {
     // The UserSetting key the install path is written to. The
     // SettingsInput component bound to this key auto-renders the
     // download button — no form changes required.
+    // The integration contract. The driver reads its path from this
+    // user setting; the manager writes the install path here after
+    // download. The connection form's SettingsInput must use the
+    // same key.
     settingKey: "myDriverFiles",
     required: false,
   };

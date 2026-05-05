@@ -1,15 +1,33 @@
 export type DepPlatform = 'linux' | 'mac' | 'windows';
 export type DepArch = 'x64' | 'arm64';
 
-/** What a database driver declares it needs */
+/**
+ * Driver-deps in one paragraph: the database driver reads a filesystem path
+ * from a `UserSetting` (e.g. `oracleInstantClient`). A `DriverDepProvider`
+ * supplies the files for that same setting key — it downloads, extracts, and
+ * writes the resulting path back into the setting. The `settingKey` is the
+ * only contract between the driver and the provider; nothing else is shared.
+ *
+ * See docs/development/driver-dependencies.md for the full walkthrough.
+ */
+
+/** What a database driver declares it needs. */
 export interface DriverRequirement {
-  /** Unique ID for this dependency, e.g. "oracle-instant-client" */
+  /** Unique ID for this dependency, e.g. "oracle-instant-client". */
   id: string;
-  /** Human-readable name, e.g. "Oracle Instant Client" */
+  /** Human-readable name, e.g. "Oracle Instant Client". */
   name: string;
-  /** The UserSetting key where the installed path is stored */
+  /**
+   * The `UserSetting` key the install path is written to.
+   *
+   * THIS IS THE INTEGRATION CONTRACT. The driver reads its filesystem path
+   * from this setting; the provider writes the install path here after a
+   * successful download. The field on the connection form must be a
+   * `SettingsInput` bound to the same key — that binding is what makes the
+   * auto-download button appear next to it.
+   */
   settingKey: string;
-  /** Whether this dep is strictly required or optional */
+  /** Whether this dep is strictly required or optional. */
   required: boolean;
 }
 
@@ -55,13 +73,20 @@ export interface DriverDepNote {
   text: string;
 }
 
-/** A provider that can supply files for a driver requirement.
+/**
+ * Supplies the files for a driver requirement.
  *
- * Providers are self-describing: each provider declares the requirement it
- * fulfills and the connection types it applies to, so the registry only
- * needs the provider itself. See docs/development/driver-dependencies.md. */
+ * Providers are self-describing: each one declares the requirement it
+ * fulfills (including the `settingKey` it writes to) and the connection
+ * types it applies to. After a successful install, the manager writes the
+ * resulting path into `requirement.settingKey` so existing driver code that
+ * already reads that setting needs no changes.
+ *
+ * See docs/development/driver-dependencies.md.
+ */
 export interface DriverDepProvider {
-  /** The dependency this provider fulfills. */
+  /** The dependency this provider fulfills. The `settingKey` on this
+   *  requirement is where the install path will be written. */
   readonly requirement: DriverRequirement;
   /** Connection types (e.g. ["oracle"]) for which this dep should appear. */
   readonly connectionTypes: string[];

@@ -167,7 +167,11 @@ export default class DriverDepManager {
       };
       this.installed.set(requirementId, dep);
 
-      // Write the path to UserSetting so the existing driver flow picks it up
+      // The integration contract: write the install path back to the
+      // requirement's `settingKey`. This is the only thing connecting
+      // the downloader to the driver — the driver already reads this
+      // setting at connect time, so no driver-side changes are needed.
+      // See docs/development/driver-dependencies.md.
       await UserSetting.set(req.settingKey, installedPath);
       log.info(
         `Setting "${req.settingKey}" updated to "${installedPath}"`

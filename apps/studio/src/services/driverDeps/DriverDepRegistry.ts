@@ -1,5 +1,11 @@
 import { DriverRequirement, DriverDepProvider } from "./types";
 
+/**
+ * In-memory registry of driver-dep providers, keyed by requirement id and
+ * indexed by connection type. Each registered provider declares which
+ * `UserSetting` key its install path is written to — see
+ * docs/development/driver-dependencies.md for the contract.
+ */
 export default class DriverDepRegistry {
   private requirements = new Map<string, DriverRequirement>();
   private providers = new Map<string, DriverDepProvider>();

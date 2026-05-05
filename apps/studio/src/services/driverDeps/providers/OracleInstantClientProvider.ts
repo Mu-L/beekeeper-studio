@@ -39,6 +39,10 @@ export default class OracleInstantClientProvider implements DriverDepProvider {
   readonly requirement: DriverRequirement = {
     id: ORACLE_INSTANT_CLIENT_REQUIREMENT_ID,
     name: "Oracle Instant Client",
+    // The Oracle driver reads this user setting at connect time to find
+    // the Instant Client directory. After install, the manager writes the
+    // extracted path here — this `settingKey` is the entire contract
+    // between this provider and the driver.
     settingKey: "oracleInstantClient",
     required: false,
   };
