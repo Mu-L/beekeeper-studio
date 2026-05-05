@@ -333,6 +333,7 @@ declare interface IBksConfig {
         checkForUpdatesDisabled: boolean;
         checkForUpdatesInterval: number;
         dataSyncInterval: number;
+        downloadUserAgent: string;
         workspaceSyncInterval: number;
     };
     keybindings: {
