@@ -690,7 +690,9 @@ export default Vue.extend({
       if (!this.tabulator) return;
 
       if (!this.active) this.forceRedraw = true;
+      const layout = this.tabulator.getColumnLayout();
       await this.tabulator.setColumns(this.tableColumns)
+      this.tabulator.setColumnLayout(layout);
       await this.refreshTable();
     },
     async lastUpdated() {
@@ -1893,7 +1895,9 @@ export default Vue.extend({
       await this.getTableKeys()
 
       await this.tabulator.replaceData()
+      const layout = this.tabulator.getColumnLayout();
       await this.tabulator.setColumns(this.tableColumns)
+      this.tabulator.setColumnLayout(layout);
       this.tabulator.setPage(page)
       if (!this.active) this.forceRedraw = true
     },
