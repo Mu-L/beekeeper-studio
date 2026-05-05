@@ -395,13 +395,6 @@ export default Vue.extend({
       selectedRowPosition: -1,
       selectedRowData: {},
       expandablePaths: [],
-
-      // Suppress tabulator's persistence writer until the initial layout
-      // settles. Tabulator fires save("columns") for every column-width
-      // assignment during firstRender; on cold start the container hasn't
-      // stabilized, so those saves clobber the persisted widths with bogus
-      // ones. See issue #4023.
-      persistenceReady: false,
     };
   },
   computed: {
@@ -750,14 +743,6 @@ export default Vue.extend({
     this.registerHandlers(this.rootBindings)
   },
   methods: {
-    persistenceWriter(id: string, type: string, data: unknown) {
-      if (!this.persistenceReady) return;
-      try {
-        localStorage.setItem(`${id}-${type}`, JSON.stringify(data));
-      } catch (e) {
-        log.warn("tabulator persistence write failed", e);
-      }
-    },
     createColumnFromProps(column) {
       // 1. add a column for a real column
       // if a FK, add another column with the link
@@ -1038,12 +1023,10 @@ export default Vue.extend({
       await this.$store.dispatch('updateTableColumns', this.table)
       await this.getTableKeys();
 
-      this.persistenceReady = false;
       this.tabulator = tabulatorForTableData(this.$refs.table, {
         table: this.table.name,
         schema: this.table.schema,
         persistenceID: this.tableId,
-        persistenceWriterFunc: this.persistenceWriter,
         rowHeader: {
           contextMenu: (_e, cell: CellComponent) => {
             const ranges = cell.getRanges();
@@ -1109,15 +1092,6 @@ export default Vue.extend({
       this.tabulator.on('tableBuilt', () => {
         this.tabulator.modules.selectRange.restoreFocus()
       })
-      // Open the persistence writer only after the initial layout pass
-      // has finished. layout-refreshed is the last event in that pass, so
-      // every save("columns") triggered during build (column-width events
-      // from setWidth, the layout-refreshed save itself, etc.) is dropped.
-      const onFirstLayout = () => {
-        this.tabulator.off('layout-refreshed', onFirstLayout)
-        this.$nextTick(() => { this.persistenceReady = true })
-      }
-      this.tabulator.on('layout-refreshed', onFirstLayout)
       this.tabulator.on('historyUndo', (action, component) => {
         if (action === "cellEdit") {
           this.cellEdited(component);
