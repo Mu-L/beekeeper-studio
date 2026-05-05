@@ -61,15 +61,17 @@
               {{ option.label }}
             </option>
           </select>
-          <auto-mode-status
-            v-if="config.sshBastionMode === 'agent'"
-            :ssh-auth-sock="$config.sshAuthSock"
-            :is-windows="$config.isWindows"
-            :ssh-config-exists="$config.sshConfigExists"
-            :ssh-config-path="sshConfigPath"
-            :default-ssh-identity-file="$config.defaultSshIdentityFile"
-            :home-directory="homeDirectory"
-          />
+          <div class="hint">
+            <auto-mode-status
+              v-if="config.sshBastionMode === 'agent'"
+              :ssh-auth-sock="$config.sshAuthSock"
+              :is-windows="$config.isWindows"
+              :ssh-config-exists="$config.sshConfigExists"
+              :ssh-config-path="sshConfigPath"
+              :default-ssh-identity-file="$config.defaultSshIdentityFile"
+              :home-directory="homeDirectory"
+            />
+          </div>
         </div>
 
         <div

@@ -165,6 +165,7 @@ export default {
     align-items: center;
     text-transform: none;
     font-weight: 600;
+    font-size: 0.8rem;
 
     &.missing {
       /* text-decoration-line: line-through; */
