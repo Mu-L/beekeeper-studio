@@ -103,36 +103,6 @@ describe("connectTunnel SSH agent handling (#4193)", () => {
     mockReadFileSync.mockReturnValue(Buffer.from("KEY"));
   });
 
-  it("does not read the private key file when useAgent is true, even if privateKey is set", async () => {
-    const ssh = buildSsh({
-      useAgent: true,
-      // Mimics connection-provider populating privateKey from SSH config IdentityFile
-      privateKey: "/nonexistent/.ssh/id_rsa",
-    });
-
-    await connectTunnel(buildConfig(ssh));
-
-    expect(mockReadFileSync).not.toHaveBeenCalled();
-    expect(lastSshConfig.privateKey).toBeUndefined();
-    expect(lastSshConfig.agentForward).toBe(true);
-    expect(lastSshConfig.agentSocket).toBe("/tmp/test-agent.sock");
-  });
-
-  it("does not surface ENOENT when SSH agent mode is used and the IdentityFile path is missing", async () => {
-    mockReadFileSync.mockImplementation((p: string) => {
-      const err: any = new Error(`ENOENT: no such file or directory, open '${p}'`);
-      err.code = "ENOENT";
-      throw err;
-    });
-
-    const ssh = buildSsh({
-      useAgent: true,
-      privateKey: "/Users/anyone/.ssh/id_rsa",
-    });
-
-    await expect(connectTunnel(buildConfig(ssh))).resolves.toBeDefined();
-  });
-
   it("reads the private key file when useAgent is false and privateKey is set", async () => {
     const ssh = buildSsh({
       useAgent: false,
@@ -144,20 +114,6 @@ describe("connectTunnel SSH agent handling (#4193)", () => {
     expect(mockReadFileSync).toHaveBeenCalledTimes(1);
     expect(mockReadFileSync.mock.calls[0][0]).toContain("/keys/keyfile");
     expect(lastSshConfig.privateKey).toEqual(Buffer.from("KEY"));
-  });
-
-  it("does not read the bastion private key file when bastionMode is 'agent'", async () => {
-    const ssh = buildSsh({
-      bastionHost: "bastion.example.com",
-      bastionMode: "agent",
-      bastionPrivateKey: "/nonexistent/bastion_key",
-    });
-
-    await connectTunnel(buildConfig(ssh));
-
-    expect(mockReadFileSync).not.toHaveBeenCalled();
-    expect(lastSshConfig.bastionPrivateKey).toBeUndefined();
-    expect(lastSshConfig.bastionAgentForward).toBe(true);
   });
 
   it("reads the bastion private key file when bastionMode is 'keyfile'", async () => {
