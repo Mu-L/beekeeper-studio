@@ -1339,7 +1339,8 @@ export default Vue.extend({
           } else {
             result[columnName] = d
             // HACK (azmi): we should handle this from backend with tests instead
-            if (this.dialect === 'postgresql' && dataType === 'jsonb') {
+            // _.isObject guard: if it's already a string don't stringify it (would double-encode)
+            if (this.dialect === 'postgresql' && dataType === 'jsonb' && _.isObject(d)) {
               result[columnName] = JSON.stringify(d)
             }
           }
