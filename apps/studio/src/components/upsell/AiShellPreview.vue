@@ -14,12 +14,10 @@
       </div>
 
       <div class="cc-asst">
-        <div
-          v-if="step === 2"
-          class="cc-thinking"
-          aria-hidden="true"
-        >
-          <span class="cc-caret"></span>
+        <!-- Always rendered to reserve vertical space, so the caret showing
+             doesn't cause a layout jump. -->
+        <div class="cc-thinking" aria-hidden="true">
+          <span class="cc-caret" v-show="step === 2"></span>
         </div>
 
         <p
