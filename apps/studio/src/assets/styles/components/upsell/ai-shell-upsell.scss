@@ -500,33 +500,40 @@
     }
   }
 
-  // --------------------------------------------------------------------------
-  // Lifetime-license footer band — sits flush at the card's bottom edge
-  // --------------------------------------------------------------------------
+}
+
+// ============================================================================
+// Status-bar slot used by the AI Shell upgrade prompt
+// Renders into the global-status-bar portal, so styles live outside the
+// `.ai-shell-upsell` scope.
+// ============================================================================
+.statusbar.ai-shell-upsell-statusbar {
+  // Override the connection-color flat fill with the theme primary tone so
+  // the bar reads as part of the upgrade prompt, not the connection chrome.
+  background: $theme-primary !important;
+  color: rgba(black, 0.87);
+  padding: 0 1rem;
+  justify-content: center;
+
   .lifetime-note {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    margin: 1rem -1.7rem -1.2rem;
-    padding: 0.55rem 1.2rem;
-    background: rgba($theme-primary, 0.08);
-    border-top: 1px solid rgba($theme-primary, 0.20);
-    border-radius: 0 0 14px 14px;
-    color: $text-dark;
-    font-size: 0.75rem;
-    line-height: 1.35;
+    font-size: 0.78rem;
+    line-height: 1;
     text-transform: none;
     letter-spacing: 0;
+    font-weight: 400;
 
     .material-icons {
       font-size: 16px;
-      color: $theme-primary;
+      color: rgba(black, 0.87);
       flex-shrink: 0;
     }
 
     strong {
-      color: $text-dark;
-      font-weight: 600;
+      font-weight: 700;
+      color: rgba(black, 0.87);
       text-transform: none;
       letter-spacing: 0;
     }
