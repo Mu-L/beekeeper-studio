@@ -8,10 +8,14 @@
   height: 100%;
   width: 100%;
   display: flex;
-  align-items: center;
+  // "safe center" stops the top from getting clipped when the card is
+  // taller than the viewport; the scroll container takes over instead.
+  align-items: safe center;
   justify-content: center;
-  padding: 1.5rem;
-  overflow: auto;
+  padding: 1.75rem 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
 
   .bg-glow {
     position: absolute;
@@ -29,6 +33,8 @@
     position: relative;
     width: 100%;
     max-width: 620px;
+    min-width: 0;
+    flex-shrink: 0;
     background:
       linear-gradient(
         180deg,
@@ -74,6 +80,7 @@
     color: $text-dark;
     margin: 0;
     letter-spacing: -0.01em;
+    text-transform: none;
   }
 
   p.lede {
@@ -81,6 +88,8 @@
     line-height: 1.5;
     color: $text;
     margin: 0 0 0.9rem;
+    text-transform: none;
+    font-weight: 400;
   }
 
   // --------------------------------------------------------------------------
@@ -92,6 +101,7 @@
     border-radius: 8px;
     margin: 0 0 0.9rem;
     overflow: hidden;
+    min-width: 0;
   }
 
   .cc-preview-head {
@@ -117,6 +127,7 @@
     color: $text-dark;
     font-weight: 500;
     font-size: 0.75rem;
+    text-transform: none;
   }
 
   .cc-preview-model {
@@ -131,7 +142,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    min-height: 220px;
+    min-height: 280px;
+    min-width: 0;
     transition: opacity 0.35s ease;
 
     &.is-resetting {
@@ -155,12 +167,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
+    min-width: 0;
 
     p {
       margin: 0;
       color: $text-dark;
       font-size: 0.75rem;
       line-height: 1.45;
+      text-transform: none;
+      font-weight: 400;
     }
 
     code {
@@ -224,6 +239,7 @@
     flex-direction: column;
     gap: 0.25rem;
     margin-top: 0.15rem;
+    min-width: 0;
   }
 
   .cc-rq-head {
@@ -232,6 +248,7 @@
     font-size: 0.75rem;
     color: $text-dark;
     font-weight: 500;
+    text-transform: none;
 
     .cc-rq-actions {
       margin-left: auto;
@@ -262,11 +279,73 @@
     border-radius: 5px;
     padding: 0.45rem 0.7rem;
     white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    min-width: 0;
 
     .kw  { color: $brand-pink; }
     .id  { color: $brand-secondary; }
     .num { color: $brand-primary; }
     .str { color: $brand-primary; }
+  }
+
+  // Result block (after SQL "runs")
+  .cc-result {
+    margin-top: 0.4rem;
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    background: color.adjust($query-editor-bg, $lightness: -6%);
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .cc-result-head {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.65rem;
+    color: $brand-success;
+    background: rgba($brand-success, 0.10);
+    border-bottom: 1px solid $border-color;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .cc-result-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: monospace;
+    font-size: 0.7rem;
+
+    th, td {
+      padding: 0.35rem 0.7rem;
+      text-align: left;
+      border-bottom: 1px solid $border-color;
+    }
+
+    th {
+      color: $text-light;
+      font-weight: 500;
+      background: rgba($theme-base, 0.02);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    td {
+      color: $text-dark;
+
+      &.num { color: $brand-primary; }
+    }
+
+    tr:last-child td { border-bottom: 0; }
+  }
+
+  .cc-final {
+    margin-top: 0.35rem;
+
+    strong {
+      color: $brand-success;
+      font-weight: 600;
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -317,7 +396,7 @@
   .pills {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.55rem;
     margin-bottom: 0.9rem;
   }
 
@@ -342,14 +421,21 @@
       font-weight: 600;
       color: $text-dark;
       font-size: 0.82rem;
+      text-transform: none;
+      letter-spacing: 0;
     }
 
-    .sub {
+    // Scoped subtitle class — `.sub` collides with a global rule in
+    // app/_layout.scss that forces uppercase + bold.
+    .pill-sub {
       display: block;
       font-size: 0.75rem;
       color: $text-light;
-      margin-top: 0.05rem;
+      margin-top: 0.1rem;
       line-height: 1.4;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
     }
   }
 
@@ -371,6 +457,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    min-width: 0;
 
     .stars {
       color: $theme-primary;
@@ -384,6 +471,7 @@
       flex: 0 1 auto;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .attr {
@@ -409,6 +497,38 @@
     .help {
       margin-top: 0.4rem;
       font-size: 0.7rem;
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Lifetime-license footer band — sits flush at the card's bottom edge
+  // --------------------------------------------------------------------------
+  .lifetime-note {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem -1.7rem -1.2rem;
+    padding: 0.55rem 1.2rem;
+    background: rgba($theme-primary, 0.08);
+    border-top: 1px solid rgba($theme-primary, 0.20);
+    border-radius: 0 0 14px 14px;
+    color: $text-dark;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    text-transform: none;
+    letter-spacing: 0;
+
+    .material-icons {
+      font-size: 16px;
+      color: $theme-primary;
+      flex-shrink: 0;
+    }
+
+    strong {
+      color: $text-dark;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
     }
   }
 }
