@@ -67,6 +67,28 @@
   <span class="kw">FROM</span> <span class="id">trials</span> t <span class="kw">JOIN</span> <span class="id">subscriptions</span> s
     <span class="kw">ON</span> s.email = t.email;</div>
         </div>
+
+        <div
+          class="cc-result cc-step"
+          :class="{ 'cc-step-show': step >= 8 }"
+        >
+          <div class="cc-result-head">1 row &middot; 38ms</div>
+          <table class="cc-result-table">
+            <thead>
+              <tr><th>avg_days_to_convert</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="num">6.84</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p
+          class="cc-final cc-step"
+          :class="{ 'cc-step-show': step >= 9 }"
+        >
+          Trial users convert in <strong>~6.8 days</strong> on average. The fastest 25% convert in under 2 days.
+        </p>
       </div>
     </div>
   </div>
@@ -85,9 +107,12 @@ import Vue from "vue";
 //   5 = second Get Columns row visible
 //   6 = Run Query header visible
 //   7 = SQL block fully revealed (clip-path slide)
-const STEP_DELAYS = [400, 1000, 500, 600, 600, 700, 300];
-const HOLD_MS = 4200;
+//   8 = result row visible (after SQL "runs")
+//   9 = assistant final answer visible
+const STEP_DELAYS = [400, 1000, 500, 600, 600, 700, 300, 900, 700];
+const HOLD_MS = 5000;
 const RESET_MS = 350;
+const FINAL_STEP = STEP_DELAYS.length;
 
 export default Vue.extend({
   data() {
@@ -106,7 +131,7 @@ export default Vue.extend({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (this.reducedMotion) {
-      this.step = 7;
+      this.step = FINAL_STEP;
       return;
     }
 
