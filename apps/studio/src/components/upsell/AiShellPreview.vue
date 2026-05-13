@@ -10,7 +10,7 @@
         class="cc-user cc-step cc-step-x"
         :class="{ 'cc-step-show': step >= 1 }"
       >
-        How long does it take trial users to convert to paid?
+        What's the most popular movie in my video rental store?
       </div>
 
       <div class="cc-asst">
@@ -24,7 +24,7 @@
           class="cc-step"
           :class="{ 'cc-step-show': step >= 3 }"
         >
-          I'll join <code>trials</code> with <code>subscriptions</code> on email and measure the gap.
+          I'll count rentals per film by joining <code>rental</code> &rarr; <code>inventory</code> &rarr; <code>film</code>.
         </p>
 
         <div
@@ -34,7 +34,7 @@
           <span class="cc-tool-bar"></span>
           <span class="cc-tool-name">Get Columns</span>
           <span class="cc-tool-sep">&mdash;</span>
-          <span class="cc-tool-meta">12 columns</span>
+          <span class="cc-tool-meta">rental, 7 columns</span>
         </div>
 
         <div
@@ -44,7 +44,7 @@
           <span class="cc-tool-bar"></span>
           <span class="cc-tool-name">Get Columns</span>
           <span class="cc-tool-sep">&mdash;</span>
-          <span class="cc-tool-meta">9 columns</span>
+          <span class="cc-tool-meta">film, 13 columns</span>
         </div>
 
         <div
@@ -61,22 +61,28 @@
           <div
             class="cc-sql cc-sql-reveal"
             :class="{ shown: step >= 7 }"
-          ><span class="kw">SELECT</span> <span class="kw">AVG</span>(<span class="kw">EXTRACT</span>(<span class="str">'day'</span> <span class="kw">FROM</span> s.created_at &minus; t.started_at))
-  <span class="kw">FROM</span> <span class="id">trials</span> t <span class="kw">JOIN</span> <span class="id">subscriptions</span> s
-    <span class="kw">ON</span> s.email = t.email;</div>
+          ><span class="kw">SELECT</span> f.title, <span class="kw">COUNT</span>(*) <span class="kw">AS</span> rentals
+  <span class="kw">FROM</span> <span class="id">rental</span> r
+  <span class="kw">JOIN</span> <span class="id">inventory</span> i <span class="kw">ON</span> r.inventory_id = i.inventory_id
+  <span class="kw">JOIN</span> <span class="id">film</span> f <span class="kw">ON</span> i.film_id = f.film_id
+  <span class="kw">GROUP BY</span> f.title
+  <span class="kw">ORDER BY</span> rentals <span class="kw">DESC</span>
+  <span class="kw">LIMIT</span> <span class="num">3</span>;</div>
         </div>
 
         <div
           class="cc-result cc-step"
           :class="{ 'cc-step-show': step >= 8 }"
         >
-          <div class="cc-result-head">1 row &middot; 38ms</div>
+          <div class="cc-result-head">3 rows &middot; 42ms</div>
           <table class="cc-result-table">
             <thead>
-              <tr><th>avg_days_to_convert</th></tr>
+              <tr><th>title</th><th>rentals</th></tr>
             </thead>
             <tbody>
-              <tr><td class="num">6.84</td></tr>
+              <tr><td>BUCKET BROTHERHOOD</td><td class="num">34</td></tr>
+              <tr><td>ROCKETEER MOTHER</td><td class="num">33</td></tr>
+              <tr><td>SCALAWAG DUCK</td><td class="num">32</td></tr>
             </tbody>
           </table>
         </div>
@@ -85,7 +91,7 @@
           class="cc-final cc-step"
           :class="{ 'cc-step-show': step >= 9 }"
         >
-          Trial users convert in <strong>~6.8 days</strong> on average. The fastest 25% convert in under 2 days.
+          <strong>BUCKET BROTHERHOOD</strong> is your most-rented title &mdash; 34 rentals across every copy in inventory.
         </p>
       </div>
     </div>
