@@ -21,21 +21,21 @@
           <div class="ico"><i class="material-icons">vpn_key</i></div>
           <div>
             <strong>Bring your own model.</strong>
-            <span class="sub">Claude, OpenAI, Gemini, or any local agent on the OpenAI API spec.</span>
+            <span class="pill-sub">Claude, OpenAI, Gemini, or any local agent on the OpenAI API spec.</span>
           </div>
         </div>
         <div class="pill-row">
           <div class="ico"><i class="material-icons">paid</i></div>
           <div>
             <strong>No usage fees, ever.</strong>
-            <span class="sub">Beekeeper talks straight to your agent. No proxy, no logs, no upcharge.</span>
+            <span class="pill-sub">Beekeeper talks straight to your agent. No proxy, no logs, no upcharge.</span>
           </div>
         </div>
         <div class="pill-row">
           <div class="ico"><i class="material-icons">verified_user</i></div>
           <div>
             <strong>Asks before it runs SQL.</strong>
-            <span class="sub">Read-only by default. Source and prompts are on GitHub.</span>
+            <span class="pill-sub">Read-only by default. Source and prompts are on GitHub.</span>
           </div>
         </div>
       </div>
@@ -47,6 +47,11 @@
       </div>
 
       <upsell-buttons class="ai-shell-upsell-buttons" />
+
+      <div class="lifetime-note">
+        <i class="material-icons">all_inclusive</i>
+        <span><strong>Lifetime license.</strong> Pay once, use forever — no subscription, no renewals.</span>
+      </div>
     </div>
   </div>
 </template>
