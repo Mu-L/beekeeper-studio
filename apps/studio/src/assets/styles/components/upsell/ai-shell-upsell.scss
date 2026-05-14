@@ -329,51 +329,43 @@
   }
 
   // --------------------------------------------------------------------------
-  // Pills (three differentiators)
+  // Pills — single inline row, the three differentiators separated by middots.
   // --------------------------------------------------------------------------
   .pills {
+    list-style: none;
+    margin: 0 0 0.9rem;
+    padding: 0;
     display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem 0.65rem;
+    font-size: 0.78rem;
+    color: $text-dark;
   }
 
   .pill-row {
-    display: grid;
-    grid-template-columns: 20px 1fr;
-    gap: 0.75rem;
-    align-items: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-transform: none;
+    letter-spacing: 0;
 
-    .ico {
-      width: 20px;
-      height: 20px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+    .material-icons {
+      font-size: 16px;
       color: $brand-success;
-
-      .material-icons { font-size: 16px; }
     }
 
-    strong {
-      font-weight: 600;
+    span {
+      font-weight: 500;
       color: $text-dark;
-      font-size: 0.82rem;
-      text-transform: none;
-      letter-spacing: 0;
+      white-space: nowrap;
     }
 
-    // Scoped subtitle class — `.sub` collides with a global rule in
-    // app/_layout.scss that forces uppercase + bold.
-    .pill-sub {
-      display: block;
-      font-size: 0.75rem;
-      color: $text-light;
-      margin-top: 0.1rem;
-      line-height: 1.4;
-      font-weight: 400;
-      text-transform: none;
-      letter-spacing: 0;
+    & + .pill-row::before {
+      content: "\00b7";
+      color: $text-lighter;
+      margin-right: 0.3rem;
     }
   }
 
