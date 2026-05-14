@@ -16,16 +16,16 @@
 
       <ai-shell-preview />
 
-      <ul class="pills">
+      <ul class="pills" title="Claude, ChatGPT, Gemini, and even local models work great.">
         <li class="pill-row">
           <i class="material-icons">vpn_key</i>
           <span>Bring your own model</span>
         </li>
-        <li class="pill-row">
+        <li class="pill-row" title="No proxies, no logging, no token fees. Beekeeper connects directly to your agent">
           <i class="material-icons">paid</i>
-          <span>No usage fees, ever</span>
+          <span>No usage fees or middlemen</span>
         </li>
-        <li class="pill-row">
+        <li class="pill-row" title="The AI shell can safely explore your database without you having to worry if it will do something destructive">
           <i class="material-icons">verified_user</i>
           <span>Asks before it runs SQL</span>
         </li>
@@ -41,7 +41,7 @@
 
       <div class="lifetime-note">
         <i class="material-icons">all_inclusive</i>
-        <span><strong>Lifetime license.</strong>&nbsp;Pay once, use forever — no subscription, no renewals.</span>
+        <span v-tooltip="'Pay for 12 months to get lifetime access to any version of Beekeeper Studio released during your subscription period.'"><strong>Lifetime license.</strong>&nbsp;Included as part of every subscription.*</span>
       </div>
     </div>
   </div>
