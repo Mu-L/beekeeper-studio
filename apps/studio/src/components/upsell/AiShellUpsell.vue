@@ -38,14 +38,12 @@
       </div>
 
       <upsell-buttons class="ai-shell-upsell-buttons" />
-    </div>
 
-    <status-bar :active="true" class="ai-shell-upsell-statusbar">
       <div class="lifetime-note">
         <i class="material-icons">all_inclusive</i>
         <span><strong>Lifetime license.</strong>&nbsp;Pay once, use forever — no subscription, no renewals.</span>
       </div>
-    </status-bar>
+    </div>
   </div>
 </template>
 
@@ -53,9 +51,8 @@
 import Vue from "vue";
 import UpsellButtons from "./common/UpsellButtons.vue";
 import AiShellPreview from "./AiShellPreview.vue";
-import StatusBar from "@/components/common/StatusBar.vue";
 
 export default Vue.extend({
-  components: { UpsellButtons, AiShellPreview, StatusBar },
+  components: { UpsellButtons, AiShellPreview },
 });
 </script>
