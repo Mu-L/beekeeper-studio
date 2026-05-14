@@ -104,39 +104,6 @@
     min-width: 0;
   }
 
-  .cc-preview-head {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.75rem;
-    border-bottom: 1px solid $border-color;
-    background: rgba($theme-base, 0.02);
-    font-size: 0.7rem;
-    color: $text-light;
-
-    .cc-preview-icon {
-      font-size: 14px;
-      background: linear-gradient(135deg, $brand-pink, $brand-purple);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-  }
-
-  .cc-preview-title {
-    color: $text-dark;
-    font-weight: 500;
-    font-size: 0.75rem;
-    text-transform: none;
-  }
-
-  .cc-preview-model {
-    margin-left: auto;
-    font-family: monospace;
-    font-size: 0.7rem;
-    color: $text-lighter;
-  }
-
   .cc-preview-body {
     padding: 0.6rem 0.75rem 0.75rem;
     display: flex;
@@ -243,30 +210,10 @@
   }
 
   .cc-rq-head {
-    display: flex;
-    align-items: center;
     font-size: 0.75rem;
     color: $text-dark;
     font-weight: 500;
     text-transform: none;
-
-    .cc-rq-actions {
-      margin-left: auto;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: $text-lighter;
-      font-size: 0.7rem;
-      font-weight: 400;
-
-      .material-icons { font-size: 13px; }
-    }
-
-    .cc-rq-copy {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-    }
   }
 
   .cc-sql {
@@ -299,17 +246,6 @@
     min-width: 0;
   }
 
-  .cc-result-head {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.65rem;
-    color: $brand-success;
-    background: rgba($brand-success, 0.10);
-    border-bottom: 1px solid $border-color;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-
   .cc-result-table {
     width: 100%;
     border-collapse: collapse;
@@ -339,11 +275,13 @@
     tr:last-child td { border-bottom: 0; }
   }
 
+  // Final assistant answer — plain text. The real AI shell renders raw text
+  // without per-word color, so bold emphasis only (no accent color).
   .cc-final {
     margin-top: 0.35rem;
 
     strong {
-      color: $brand-success;
+      color: $text-dark;
       font-weight: 600;
     }
   }
