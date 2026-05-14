@@ -16,29 +16,20 @@
 
       <ai-shell-preview />
 
-      <div class="pills">
-        <div class="pill-row">
-          <div class="ico"><i class="material-icons">vpn_key</i></div>
-          <div>
-            <strong>Bring your own model.</strong>
-            <span class="pill-sub">Claude, OpenAI, Gemini, or any local agent on the OpenAI API spec.</span>
-          </div>
-        </div>
-        <div class="pill-row">
-          <div class="ico"><i class="material-icons">paid</i></div>
-          <div>
-            <strong>No usage fees, ever.</strong>
-            <span class="pill-sub">Beekeeper talks straight to your agent. No proxy, no logs, no upcharge.</span>
-          </div>
-        </div>
-        <div class="pill-row">
-          <div class="ico"><i class="material-icons">verified_user</i></div>
-          <div>
-            <strong>Asks before it runs SQL.</strong>
-            <span class="pill-sub">Read-only by default. Source and prompts are on GitHub.</span>
-          </div>
-        </div>
-      </div>
+      <ul class="pills">
+        <li class="pill-row">
+          <i class="material-icons">vpn_key</i>
+          <span>Bring your own model</span>
+        </li>
+        <li class="pill-row">
+          <i class="material-icons">paid</i>
+          <span>No usage fees, ever</span>
+        </li>
+        <li class="pill-row">
+          <i class="material-icons">verified_user</i>
+          <span>Asks before it runs SQL</span>
+        </li>
+      </ul>
 
       <div class="testimonial">
         <span class="stars" aria-label="5 out of 5">★★★★★</span>
