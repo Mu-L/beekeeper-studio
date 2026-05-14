@@ -430,42 +430,46 @@
     }
   }
 
-}
-
-// ============================================================================
-// Status-bar slot used by the AI Shell upgrade prompt
-// Renders into the global-status-bar portal, so styles live outside the
-// `.ai-shell-upsell` scope.
-// ============================================================================
-.statusbar.ai-shell-upsell-statusbar {
-  // Override the connection-color flat fill with the theme primary tone so
-  // the bar reads as part of the upgrade prompt, not the connection chrome.
-  background: $theme-primary !important;
-  color: rgba(black, 0.87);
-  padding: 0 1rem;
-  justify-content: center;
-
+  // --------------------------------------------------------------------------
+  // Lifetime-license footer band — sits flush at the card's bottom edge.
+  // --------------------------------------------------------------------------
   .lifetime-note {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    margin: 1rem -1.7rem -1.2rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba($theme-primary, 0.10);
+    border-top: 1px solid rgba($theme-primary, 0.22);
+    border-radius: 0 0 14px 14px;
+    color: $text-dark;
     font-size: 0.78rem;
-    line-height: 1;
+    line-height: 1.35;
     text-transform: none;
     letter-spacing: 0;
-    font-weight: 400;
 
     .material-icons {
       font-size: 16px;
-      color: rgba(black, 0.87);
+      color: $theme-primary;
       flex-shrink: 0;
     }
 
     strong {
-      font-weight: 700;
-      color: rgba(black, 0.87);
+      color: $text-dark;
+      font-weight: 600;
       text-transform: none;
       letter-spacing: 0;
     }
   }
+}
+
+// ============================================================================
+// Hide the global statusbar entirely when the AI Shell upgrade prompt is
+// the active tab. The upsell carries its own lifetime-license footer inside
+// the card, so the empty connection-color band below is just chrome noise.
+// Uses :has() — Electron's bundled Chromium 105+ supports it.
+// ============================================================================
+.app:has(.tab-pane.active .ai-shell-upsell) .global-status-bar {
+  display: none;
 }
