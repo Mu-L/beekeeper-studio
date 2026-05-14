@@ -1,10 +1,5 @@
 <template>
   <div class="cc-preview" ref="root" :class="{ 'cc-reduced-motion': reducedMotion }">
-    <div class="cc-preview-head">
-      <i class="material-icons cc-preview-icon">auto_awesome</i>
-      <span class="cc-preview-title">AI Shell</span>
-      <span class="cc-preview-model">claude-opus-4-7</span>
-    </div>
     <div class="cc-preview-body" :class="{ 'is-resetting': resetting }">
       <div
         class="cc-user cc-step cc-step-x"
@@ -51,13 +46,7 @@
           class="cc-runquery cc-step"
           :class="{ 'cc-step-show': step >= 6 }"
         >
-          <div class="cc-rq-head">
-            <span>Run Query</span>
-            <span class="cc-rq-actions">
-              <i class="material-icons">open_in_new</i>
-              <span class="cc-rq-copy">Copy query</span>
-            </span>
-          </div>
+          <div class="cc-rq-head">Run Query</div>
           <div
             class="cc-sql cc-sql-reveal"
             :class="{ shown: step >= 7 }"
@@ -74,7 +63,6 @@
           class="cc-result cc-step"
           :class="{ 'cc-step-show': step >= 8 }"
         >
-          <div class="cc-result-head">3 rows &middot; 42ms</div>
           <table class="cc-result-table">
             <thead>
               <tr><th>title</th><th>rentals</th></tr>
