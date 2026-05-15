@@ -88,29 +88,7 @@
 
           <!-- CTAs -->
           <div class="cta-row">
-            <p
-              v-if="isSupportDateExpired"
-              class="license-invalid"
-            >
-              <i class="material-icons">info</i>
-              <span>
-                Your existing license isn't valid for this version.
-                <a href="#" @click.prevent="showLicenseInfo">Learn more.</a>
-              </span>
-            </p>
-            <div class="actions">
-              <p v-if="trialExpired" class="trial-hint">
-                Free trial ended on <span>{{ trialEndDate }}</span>.
-              </p>
-              <a
-                class="btn btn-flat"
-                @click.prevent="learnMore"
-              >Learn more</a>
-              <a
-                class="btn btn-primary"
-                @click.prevent="buyLicense"
-              >Upgrade</a>
-            </div>
+            <UpsellButtons />
           </div>
         </div>
 
@@ -118,8 +96,8 @@
         <div class="lifetime-footer" v-tooltip="'Subscribe for 12+ months and get lifetime access to any version released within your subscription period.'">
           <i class="material-icons">all_inclusive</i>
           <span>
-            <strong>Lifetime license.</strong>
-            Included as part of every subscription.<span class="asterisk">*</span>
+            <strong>Lifetime license</strong>
+            - included as part of every subscription.<span class="asterisk">*</span>
           </span>
         </div>
       </div>
@@ -130,10 +108,9 @@
 <script lang="ts">
 import { AppEvent } from '@/common/AppEvent'
 import Vue from 'vue'
-import { mapState } from 'vuex'
+import UpsellButtons from './common/UpsellButtons.vue'
 import logoUrl from '@/assets/logo.svg'
 
-const PRICING_URL = 'https://www.beekeeperstudio.io/pricing'
 const UPGRADE_URL = 'https://www.beekeeperstudio.io/upgrade'
 
 const FEATURES = [
@@ -168,6 +145,7 @@ const FEATURES = [
 ] as const
 
 export default Vue.extend({
+  components: { UpsellButtons },
   data() {
     return {
       featureName: null as string | null,
@@ -176,23 +154,8 @@ export default Vue.extend({
     }
   },
   computed: {
-    ...mapState('licenses', { 'licenseStatus': 'status' }),
     triggered(): boolean {
       return !!this.featureName
-    },
-    trialLicense(): any {
-      return this.$store.getters['licenses/trialLicense']
-    },
-    trialEndDate(): string | undefined {
-      return this.trialLicense?.validUntil?.toDateString()
-    },
-    trialExpired(): boolean {
-      if (!this.trialLicense) return false
-      return this.trialLicense.validUntil < new Date()
-    },
-    isSupportDateExpired(): boolean {
-      // @ts-ignore - mapped from vuex
-      return this.licenseStatus?.isSupportDateExpired
     },
     unlockList(): Array<{ id: string, title: string, blurb: string, icon: string, color: string }> {
       const match = this.featureName
@@ -229,15 +192,8 @@ export default Vue.extend({
     close() {
       this.$modal.hide('upgrade-modal')
     },
-    buyLicense() {
-      this.$native.openLink(PRICING_URL)
-      this.$root.$emit(AppEvent.enterLicense)
-    },
     learnMore() {
       this.$native.openLink(UPGRADE_URL)
-    },
-    showLicenseInfo() {
-      this.$root.$emit(AppEvent.enterLicense)
     }
   },
   mounted() {

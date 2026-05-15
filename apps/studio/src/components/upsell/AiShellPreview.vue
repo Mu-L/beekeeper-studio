@@ -173,11 +173,19 @@ export default Vue.extend({
         const t1 = window.setTimeout(() => {
           this.resetting = true;
           const t2 = window.setTimeout(() => {
+            // Snap back to step 0 while still in the resetting state — the
+            // SCSS suppresses child transitions there, so children jump
+            // straight to their hidden positions instead of crossfading
+            // with the body fading back in.
             this.step = 0;
-            this.resetting = false;
-            // Small breath before kicking off again.
-            const t3 = window.setTimeout(() => this.scheduleNext(0), 250);
-            this.timers.push(t3);
+            // Wait a frame so the snap paints before we lift the resetting
+            // flag and start fading the body back in.
+            requestAnimationFrame(() => {
+              this.resetting = false;
+              // Small breath before kicking off again.
+              const t3 = window.setTimeout(() => this.scheduleNext(0), 250);
+              this.timers.push(t3);
+            });
           }, RESET_MS);
           this.timers.push(t2);
         }, HOLD_MS);
