@@ -52,6 +52,29 @@
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 0.4rem;
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11.5px;
+      color: $theme-primary;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      line-height: 1;
+      margin-bottom: 4px;
+
+      .material-icons {
+        font-size: 13px;
+      }
+    }
   }
 
   .mark {
@@ -115,6 +138,16 @@
 
     &.is-resetting {
       opacity: 0;
+
+      // While the body is faded out for reset, snap children back to their
+      // hidden state without transitioning — otherwise they crossfade with
+      // the body fading back in and the final frame "flashes" through.
+      .cc-step,
+      .cc-sql-reveal,
+      .cc-caret {
+        transition: none !important;
+        animation: none !important;
+      }
     }
   }
 
@@ -414,18 +447,7 @@
   // CTA buttons (existing UpsellButtons)
   // --------------------------------------------------------------------------
   .ai-shell-upsell-buttons {
-    .actions {
-      gap: 0.5rem;
-      margin-top: 0;
-      justify-content: stretch;
-
-      .btn {
-        flex: 1;
-      }
-    }
-
     .help {
-      margin-top: 0.4rem;
       font-size: 0.7rem;
     }
   }

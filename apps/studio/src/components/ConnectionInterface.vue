@@ -129,7 +129,7 @@
                   :testing="testing"
                 />
                 <duck-db-form
-                  v-else-if="config.connectionType === 'duckdb'"
+                  v-else-if="config.connectionType === 'duckdb' && isUltimate"
                   :config="config"
                   :testing="testing"
                 />

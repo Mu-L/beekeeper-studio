@@ -2,43 +2,54 @@
   <!-- This component is responsible for showing buttons based on user subscription status -->
   <!-- For example - can they start a trial? -->
   <div class="upsell-buttons">
-    <p class="small text-muted card padding flex flex-middle" v-if="isSupportDateExpired">
-      <span class="expand flex flex-middle">
-        <i class="material-icons me-2">info_outline</i>
-        <span>
-          Your existing license is not valid for this version of the app.
-          <a @click.prevent="showLicenseInfo">Learn more.</a>
-        </span>
-      </span>
-    </p>
+    <div
+      v-if="isSupportDateExpired"
+      class="alert alert-warning"
+    >
+      <i class="material-icons">info_outline</i>
+      <div class="alert-body">
+        Your existing license is not valid for this version of the app.
+        <a @click.prevent="showLicenseInfo">Learn more.</a>
+      </div>
+    </div>
     <div class="actions">
+      <p v-if="trialExpired" class="help text-muted small">
+        Free trial ended on {{ trialEndDate }}
+      </p>
       <a v-if="trialAvailable" class="btn btn-flat" v-tooltip="'14 day free trial, no email or credit card required'" @click.prevent="startTrial">Start Free Trial</a>
       <a v-else :href="learnUrl" class="btn btn-flat">Learn more</a>
       <a @click.prevent="buyLicense" class="btn btn-primary" v-tooltip="'Get lifetime app access with any purchase'">Upgrade</a>
     </div>
-    <p class="help text-right text-muted small" v-if="trialExpired">
-      Your free trial ended on {{ trialEndDate }}
-    </p>
   </div>
 </template>
 <style scoped lang="scss">
+  .upsell-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
   .actions {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
   }
   .help {
-    text-align: right;
+    margin: 0 auto 0 0;
+    text-align: left;
   }
   .btn {
     white-space: nowrap;
+    margin: 0;
+    flex: 0 0 auto;
   }
-  p {
-    .help {
-      margin-bottom: 0;
-    }
+  .alert {
+    margin: 0;
     a {
       display: inline;
       font-weight: 700;
+      cursor: pointer;
     }
   }
 </style>
@@ -48,7 +59,7 @@ import { mapState } from 'vuex';
 
 export default {
   data: () => ({
-    learnUrl: 'https://docs.beekeeperstudio.io/docs/upgrading-from-the-community-edition',
+    learnUrl: 'https://www.beekeeperstudio.io/upgrade',
     buyUrl: 'https://www.beekeeperstudio.io/pricing',
   }),
   computed: {
@@ -75,6 +86,7 @@ export default {
   methods: {
     startTrial() {
       this.$store.dispatch('licenses/add', { trial: true })
+      this.$emit('started-trial')
     },
     showLicenseInfo() {
       this.$root.$emit(AppEvent.enterLicense)

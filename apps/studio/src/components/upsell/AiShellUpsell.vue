@@ -7,7 +7,13 @@
         <div class="mark">
           <i class="material-icons">auto_awesome</i>
         </div>
-        <h1>Chat with your database</h1>
+        <div class="title-block">
+          <div class="eyebrow">
+            <i class="material-icons">lock</i>
+            <span>Upgrade required</span>
+          </div>
+          <h1>Chat with your database</h1>
+        </div>
       </div>
       <p class="lede">
         A SQL wingman that figures out your schema on its own, writes
@@ -41,7 +47,7 @@
 
       <div class="lifetime-note">
         <i class="material-icons">all_inclusive</i>
-        <span v-tooltip="'Pay for 12 months to get lifetime access to any version of Beekeeper Studio released during your subscription period.'"><strong>Lifetime license.</strong>&nbsp;Included as part of every subscription.*</span>
+        <span v-tooltip="'Pay for 12 months to get lifetime access to any version of Beekeeper Studio released during your subscription period.'"><strong>Lifetime license</strong> - included as part of every subscription.*</span>
       </div>
     </div>
   </div>

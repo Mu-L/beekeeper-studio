@@ -104,7 +104,7 @@ components: { NewWorkspaceButton, WorkspaceAvatar, AccountStatusButton, ContentP
     },
     refresh() {
       if (this.$store.getters.isCommunity) {
-        this.$root.$emit(AppEvent.upgradeModal)
+        this.$root.$emit(AppEvent.upgradeModal, 'Cloud Workspaces')
         return
       }
       this.$store.dispatch('credentials/load')
@@ -112,7 +112,7 @@ components: { NewWorkspaceButton, WorkspaceAvatar, AccountStatusButton, ContentP
     click(blob: { workspace: IWorkspace, client: CloudClient}) {
       const isLocal = blob.workspace.id === LocalWorkspace.id
       if (!isLocal && this.$store.getters.isCommunity) {
-        this.$root.$emit(AppEvent.upgradeModal)
+        this.$root.$emit(AppEvent.upgradeModal, 'Cloud Workspaces')
         return
       }
       this.$store.commit('workspaceId', blob.workspace.id)
