@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { IWorkspace } from '@/common/interfaces/IWorkspace'
+import { IWorkspace, LocalWorkspace } from '@/common/interfaces/IWorkspace'
 import ContentPlaceholder from '@/components/common/loading/ContentPlaceholder.vue'
 import ContentPlaceholderImg from '@/components/common/loading/ContentPlaceholderImg.vue'
 import WorkspaceAvatar from '@/components/common/WorkspaceAvatar.vue'
@@ -110,7 +110,8 @@ components: { NewWorkspaceButton, WorkspaceAvatar, AccountStatusButton, ContentP
       this.$store.dispatch('credentials/load')
     },
     click(blob: { workspace: IWorkspace, client: CloudClient}) {
-      if (this.$store.getters.isCommunity) {
+      const isLocal = blob.workspace.id === LocalWorkspace.id
+      if (!isLocal && this.$store.getters.isCommunity) {
         this.$root.$emit(AppEvent.upgradeModal)
         return
       }
