@@ -4,75 +4,240 @@
       class="vue-dialog beekeeper-modal upgrade-modal"
       name="upgrade-modal"
       height="auto"
+      :width="modalWidth"
     >
       <div
-        class="dialog-content"
+        class="dialog-content upgrade-modal-content"
         v-kbd-trap="true"
       >
-        <h3 class="dialog-c-title has-icon">
-          <i class="material-icons">stars</i> <span>Upgrade Beekeeper Studio</span>
-        </h3>
-
-        <a
+        <button
           class="close-btn btn btn-fab"
-          href="#"
-          @click.prevent="$modal.hide('upgrade-modal')"
+          @click.prevent="close"
+          aria-label="Close"
         >
           <i class="material-icons">clear</i>
-        </a>
-        <div class="checkbox-wrapper">
-          <!-- <p class="text-muted">This feature is not included in the Community Edition. Please upgrade the app to continue.</p> -->
-          <p class="text-muted">
-            <strong v-if="message">{{ message }}.</strong> Upgrade to get exclusive features:
-          </p>
-          <div class="row">
-            <div class="col s6">
-              <ul class="check-list">
-                <li>Run queries directly to file</li>
-                <li>Export multiple tables</li>
-                <li>Backup & restore</li>
-                <li>Magic formatting</li>
-                <li>More than 2 table filters</li>
-              </ul>
+        </button>
+
+        <div class="upgrade-modal-scroll">
+          <!-- Header -->
+          <div class="upgrade-modal-header">
+            <img class="bk-badge" :src="logoUrl" alt="Beekeeper Studio">
+            <div class="title-block" :class="{ triggered }">
+              <div v-if="triggered" class="eyebrow">
+                <i class="material-icons">lock</i>
+                <span>Upgrade required</span>
+              </div>
+              <h2 class="title">
+                {{ triggered ? `Unlock ${featureName}` : 'Upgrade Beekeeper Studio' }}
+              </h2>
             </div>
-            <div class="col s6">
-              <ul class="check-list">
-                <li title="Oracle, Cassandra, BigQuery, and more">
-                  More database engines
-                </li>
-                <li>Cloud sync</li>
-                <li>Read-only mode</li>
-                <li>SQLite Extensions</li>
-                <li>Import from file</li>
-              </ul>
+            <span class="indie-pill">
+              <span class="dot"></span>
+              Independent · Open source
+            </span>
+          </div>
+          <p v-if="triggered" class="subtitle">
+            … plus a bunch of other intuitive and useful features.
+          </p>
+
+          <!-- What you unlock -->
+          <div class="unlock-section">
+            <div class="section-label">What you unlock by upgrading</div>
+            <ul class="unlock-list">
+              <li
+                v-for="item in unlockList"
+                :key="item.id"
+                class="unlock-item"
+              >
+                <i
+                  class="material-icons unlock-icon"
+                  :style="{ color: item.color }"
+                >{{ item.icon }}</i>
+                <div class="unlock-text">
+                  <span class="unlock-title">{{ item.title }}</span>
+                  <span v-if="item.blurb" class="unlock-blurb">{{ item.blurb }}</span>
+                </div>
+              </li>
+              <li class="unlock-more">
+                <a
+                  href="#"
+                  @click.prevent="learnMore"
+                >
+                  …and much, much more
+                  <span class="link-emphasis">see the full list</span>
+                  <i class="material-icons">arrow_forward</i>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Testimonial -->
+          <figure class="testimonial">
+            <div class="avatar">MK</div>
+            <div class="testimonial-body">
+              <blockquote>
+                “By far the most user-friendly DB GUI out there. Our whole team bought a license.”
+              </blockquote>
+              <figcaption>
+                <span class="author">Matt K</span>
+                <span class="sep">·</span>
+                <span class="role">Engineering Lead, MinnHealth</span>
+              </figcaption>
+            </div>
+          </figure>
+
+          <!-- CTAs -->
+          <div class="cta-row">
+            <p
+              v-if="isSupportDateExpired"
+              class="license-invalid"
+            >
+              <i class="material-icons">info</i>
+              <span>
+                Your existing license isn't valid for this version.
+                <a href="#" @click.prevent="showLicenseInfo">Learn more.</a>
+              </span>
+            </p>
+            <div class="actions">
+              <p v-if="trialExpired" class="trial-hint">
+                Free trial ended on <span>{{ trialEndDate }}</span>.
+              </p>
+              <a
+                class="btn btn-flat"
+                @click.prevent="learnMore"
+              >Learn more</a>
+              <a
+                class="btn btn-primary"
+                @click.prevent="buyLicense"
+              >Upgrade</a>
             </div>
           </div>
         </div>
-        <div class="vue-dialog-buttons">
-          <UpsellButtons />
+
+        <!-- Lifetime license footer band -->
+        <div class="lifetime-footer" v-tooltip="'Subscribe for 12+ months and get lifetime access to any version released within your subscription period.'">
+          <i class="material-icons">all_inclusive</i>
+          <span>
+            <strong>Lifetime license.</strong>
+            Included as part of every subscription.<span class="asterisk">*</span>
+          </span>
         </div>
       </div>
     </modal>
   </portal>
 </template>
+
 <script lang="ts">
 import { AppEvent } from '@/common/AppEvent'
 import Vue from 'vue'
-import UpsellButtons from '../upsell/common/UpsellButtons.vue';
+import { mapState } from 'vuex'
+import logoUrl from '@/assets/logo.svg'
+
+const PRICING_URL = 'https://www.beekeeperstudio.io/pricing'
+const UPGRADE_URL = 'https://www.beekeeperstudio.io/upgrade'
+
+const FEATURES = [
+  {
+    id: 'ai',
+    title: 'SQL AI Shell',
+    blurb: 'Bring your own model — Claude, OpenAI, Gemini, or local.',
+    icon: 'auto_awesome',
+    color: 'var(--bks-brand-pink, #ff78f7)'
+  },
+  {
+    id: 'json',
+    title: 'JSON Sidebar',
+    blurb: 'View any row as JSON and expand foreign keys inline.',
+    icon: 'data_object',
+    color: 'var(--bks-item-view, #4ad0ff)'
+  },
+  {
+    id: 'organize',
+    title: 'Folders',
+    blurb: 'Folders, drag-and-drop reordering, color coding.',
+    icon: 'folder',
+    color: 'var(--bks-text, rgba(255,255,255,0.67))'
+  },
+  {
+    id: 'workspaces',
+    title: 'Cloud Workspaces',
+    blurb: 'Sync connections across devices, share a Team folder.',
+    icon: 'cloud',
+    color: 'var(--bks-brand-secondary, #4ad0ff)'
+  }
+] as const
 
 export default Vue.extend({
-  components: { UpsellButtons},
   data() {
     return {
-      message: null
+      featureName: null as string | null,
+      logoUrl,
+      modalWidth: 620
+    }
+  },
+  computed: {
+    ...mapState('licenses', { 'licenseStatus': 'status' }),
+    triggered(): boolean {
+      return !!this.featureName
+    },
+    trialLicense(): any {
+      return this.$store.getters['licenses/trialLicense']
+    },
+    trialEndDate(): string | undefined {
+      return this.trialLicense?.validUntil?.toDateString()
+    },
+    trialExpired(): boolean {
+      if (!this.trialLicense) return false
+      return this.trialLicense.validUntil < new Date()
+    },
+    isSupportDateExpired(): boolean {
+      // @ts-ignore - mapped from vuex
+      return this.licenseStatus?.isSupportDateExpired
+    },
+    unlockList(): Array<{ id: string, title: string, blurb: string, icon: string, color: string }> {
+      const match = this.featureName
+        ? FEATURES.find((f) => f.title.toLowerCase() === this.featureName!.toLowerCase())
+        : null
+
+      if (match) {
+        // Move matched feature to the front of the list
+        return [match, ...FEATURES.filter((f) => f.id !== match.id)]
+      }
+
+      if (this.featureName) {
+        // Synthetic entry — feature isn't one of our 4 known ones
+        const synthetic = {
+          id: 'synthetic',
+          title: this.featureName,
+          blurb: '',
+          icon: 'workspace_premium',
+          color: 'var(--bks-theme-primary, #fad83b)'
+        }
+        return [synthetic, ...FEATURES]
+      }
+
+      return [...FEATURES]
     }
   },
   methods: {
-    showModal(message) {
+    showModal(featureName?: string | null) {
       if (this.$store.getters.isCommunity) {
-        this.message = message
+        this.featureName = featureName || null
         this.$modal.show('upgrade-modal')
       }
+    },
+    close() {
+      this.$modal.hide('upgrade-modal')
+    },
+    buyLicense() {
+      this.$native.openLink(PRICING_URL)
+      this.$root.$emit(AppEvent.enterLicense)
+    },
+    learnMore() {
+      this.$native.openLink(UPGRADE_URL)
+    },
+    showLicenseInfo() {
+      this.$root.$emit(AppEvent.enterLicense)
     }
   },
   mounted() {
@@ -81,6 +246,5 @@ export default Vue.extend({
   beforeDestroy() {
     this.$root.$off(AppEvent.upgradeModal, this.showModal)
   }
-
 })
 </script>
