@@ -8,8 +8,10 @@
     >
       <i class="material-icons">info_outline</i>
       <div class="alert-body">
-        Your existing license is not valid for this version of the app.
-        <a @click.prevent="showLicenseInfo">Learn more.</a>
+        <span>
+          Your existing license is not valid for this version of the app.
+          <a @click.prevent="showLicenseInfo">Learn more.</a>
+        </span>
       </div>
     </div>
     <div class="actions">
