@@ -88,7 +88,7 @@
 
           <!-- CTAs -->
           <div class="cta-row">
-            <UpsellButtons />
+            <UpsellButtons @started-trial="close" />
           </div>
         </div>
 

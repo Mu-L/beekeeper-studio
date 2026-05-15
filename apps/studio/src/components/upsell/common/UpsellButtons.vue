@@ -86,6 +86,7 @@ export default {
   methods: {
     startTrial() {
       this.$store.dispatch('licenses/add', { trial: true })
+      this.$emit('started-trial')
     },
     showLicenseInfo() {
       this.$root.$emit(AppEvent.enterLicense)
